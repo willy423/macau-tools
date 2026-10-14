@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마카오 맛집 데이터 자료 🇲🇴</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#FDF6ED;--warm-white:#FEFAF4;--gold:#C9922A;--gold-light:#E8B84B;--charcoal:#1C1C1E;--dark-brown:#2D1B0E;--medium-brown:#5C3D2E;--muted-text:#7A6A5A;--border:#E8D9C4;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{background:var(--cream);color:var(--charcoal);font-family:'Noto Sans KR',sans-serif;line-height:1.7;overflow-x:hidden;}
+
+  /* HERO */
+  .hero{background:linear-gradient(145deg,#3B0A1F 0%,#6B1A35 45%,#4A1020 100%);color:var(--cream);padding:72px 24px 52px;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 60%,rgba(212,160,120,0.22) 0%,transparent 55%),radial-gradient(ellipse at 85% 15%,rgba(196,100,120,0.20) 0%,transparent 50%);pointer-events:none;}
+  .hero-flag{font-size:52px;display:block;margin-bottom:14px;position:relative;animation:floatFlag 3s ease-in-out infinite;}
+  @keyframes floatFlag{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,46px);font-weight:900;position:relative;line-height:1.15;}
+  .hero h1 em{font-style:italic;color:#F0C0A0;}
+  .hero-sub{margin-top:10px;font-size:13px;color:rgba(253,246,237,0.6);font-weight:300;position:relative;}
+  .hero-desc{margin-top:20px;display:inline-block;background:rgba(255,255,255,0.07);border:1px solid rgba(240,192,160,0.28);border-radius:12px;padding:12px 20px;font-size:13px;color:rgba(253,246,237,0.78);line-height:1.65;position:relative;max-width:540px;}
+  .hero-desc strong{color:#F0C0A0;}
+
+  /* NAV — button 방식으로 외부링크 방지 */
+  .nav-tabs{background:#2E0818;display:flex;justify-content:center;border-top:1px solid rgba(255,255,255,0.08);position:sticky;top:0;z-index:100;overflow-x:auto;scrollbar-width:none;}
+  .nav-tabs::-webkit-scrollbar{display:none;}
+  .nav-tab{padding:13px 14px;font-size:12px;font-weight:500;color:rgba(253,246,237,0.5);cursor:pointer;white-space:nowrap;transition:all 0.25s;border:none;border-bottom:2px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;}
+  .nav-tab:hover,.nav-tab.active{color:#F0C0A0;border-bottom-color:#F0C0A0;}
+
+  /* LAYOUT */
+  .container{max-width:900px;margin:0 auto;padding:0 20px;}
+  .section{padding:52px 0 32px;}
+  .section+.section{border-top:1px solid var(--border);}
+  .section-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+  .section-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+  .icon-cantonese{background:linear-gradient(135deg,#FDE68A,#F59E0B);}
+  .icon-portuguese{background:linear-gradient(135deg,#86EFAC,#16A34A);}
+  .icon-dimsum{background:linear-gradient(135deg,#FCA5A5,#EF4444);}
+  .icon-sichuan{background:linear-gradient(135deg,#F9A8D4,#DB2777);}
+  .icon-cafe{background:linear-gradient(135deg,#C4B5FD,#7C3AED);}
+  .icon-bakery{background:linear-gradient(135deg,#6EE7B7,#059669);}
+  .icon-western{background:linear-gradient(135deg,#93C5FD,#2563EB);}
+  .icon-foodcourt{background:linear-gradient(135deg,#FCD34D,#D97706);}
+  .icon-korean{background:linear-gradient(135deg,#7DD3FC,#0369A1);}
+  .icon-map{background:linear-gradient(135deg,#FDA4AF,#E11D48);}
+  .icon-tip{background:linear-gradient(135deg,#FCD34D,#D97706);}
+  .section-title{font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,27px);font-weight:700;color:var(--dark-brown);line-height:1.2;}
+  .section-title span{display:block;font-family:'Noto Sans KR',sans-serif;font-size:11.5px;font-weight:400;color:var(--muted-text);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+
+  /* CARD */
+  .restaurant-card{background:var(--warm-white);border:1px solid var(--border);border-radius:20px;padding:22px 22px 16px;margin-bottom:16px;position:relative;transition:transform 0.2s,box-shadow 0.2s;overflow:hidden;}
+  .restaurant-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:20px 0 0 20px;}
+  .card-cantonese::before{background:linear-gradient(to bottom,#F59E0B,#FDE68A);}
+  .card-portuguese::before{background:linear-gradient(to bottom,#16A34A,#86EFAC);}
+  .card-dimsum::before{background:linear-gradient(to bottom,#EF4444,#FCA5A5);}
+  .card-sichuan::before{background:linear-gradient(to bottom,#DB2777,#F9A8D4);}
+  .card-cafe::before{background:linear-gradient(to bottom,#7C3AED,#C4B5FD);}
+  .card-bakery::before{background:linear-gradient(to bottom,#059669,#6EE7B7);}
+  .card-western::before{background:linear-gradient(to bottom,#2563EB,#93C5FD);}
+  .card-foodcourt::before{background:linear-gradient(to bottom,#D97706,#FCD34D);}
+  .card-korean::before{background:linear-gradient(to bottom,#0369A1,#7DD3FC);}
+  .restaurant-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(45,27,14,0.1);}
+
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+  .card-left{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;}
+  .card-number{width:30px;height:30px;border-radius:50%;background:var(--dark-brown);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'Playfair Display',serif;}
+  .card-name h3{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--dark-brown);line-height:1.3;}
+  .card-name .eng{font-size:11px;color:var(--muted-text);margin-top:2px;}
+  /* 지역별 표 식당 링크 */
+  .area-link{background:none;border:none;padding:2px 0;font:inherit;color:var(--dark-brown);text-decoration:underline;text-decoration-color:rgba(201,146,42,0.5);text-underline-offset:3px;cursor:pointer;text-align:left;}
+  .area-link:active{color:var(--gold);}
+  /* 이름 복사 버튼 */
+  .card-name h3,.egg-card h3{-webkit-user-select:text;user-select:text;}
+  .card-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+  .egg-card .name-copy{margin-top:6px;}
+  .name-copy{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;padding:4px 10px;min-height:28px;border-radius:14px;border:1px solid var(--border);background:var(--cream);color:var(--medium-brown);font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .name-copy:active{background:var(--border);}
+  .name-copy.done{background:#059669;border-color:#059669;color:#fff;}
+
+  /* ★ 프롬프트 복사 버튼 ★ */
+  .copy-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:20px;border:none;background:linear-gradient(135deg,#2D1B0E,#4A2E1A);color:#F0C0A0;font-size:11px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.2s;letter-spacing:0.2px;}
+  .copy-btn:hover{background:linear-gradient(135deg,#3B0A1F,#6B1A35);transform:scale(1.04);}
+  .copy-btn.done{background:linear-gradient(135deg,#059669,#047857);color:#fff;}
+
+  .badge-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+  .michelin-badge{background:linear-gradient(135deg,#C9922A,#E8B84B);color:white;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .reserve-badge{background:#7A1F1F;color:white;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .cat-badge{background:rgba(45,27,14,0.07);color:var(--medium-brown);font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;}
+
+  .card-meta{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0;}
+  .meta-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted-text);background:var(--cream);border:1px solid var(--border);border-radius:7px;padding:4px 9px;}
+  .contact-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+  .contact-btn{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:20px;text-decoration:none;transition:all 0.2s;white-space:nowrap;}
+  .contact-btn.phone{color:#16A34A;border:1px solid #16A34A;}
+  .contact-btn.phone:hover{background:#16A34A;color:white;}
+  .contact-btn.menu-link{color:#7C3AED;border:1px solid #7C3AED;}
+  .contact-btn.menu-link:hover{background:#7C3AED;color:white;}
+
+  .menu-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .menu-pill{background:var(--cream);border:1px solid var(--border);color:var(--medium-brown);font-size:11.5px;font-weight:500;padding:4px 10px;border-radius:20px;}
+  .menu-pill.highlight{background:var(--dark-brown);color:var(--gold-light);border-color:var(--dark-brown);}
+  .card-note{font-size:11.5px;color:var(--muted-text);font-style:italic;margin-top:6px;}
+  .card-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border);}
+  .price-tag{font-size:13px;font-weight:700;color:var(--dark-brown);}
+  .map-link{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--gold);text-decoration:none;font-weight:600;padding:5px 12px;border:1px solid var(--gold);border-radius:20px;transition:all 0.2s;}
+  .map-link:hover{background:var(--gold);color:white;}
+
+  .group-tip{background:linear-gradient(135deg,rgba(201,146,42,0.09),rgba(201,146,42,0.03));border:1px solid rgba(201,146,42,0.25);border-radius:13px;padding:14px 18px;font-size:13px;color:var(--medium-brown);margin:2px 0 24px;line-height:1.75;}
+  .group-tip strong{color:var(--dark-brown);}
+
+  /* EGG BATTLE */
+  .egg-battle{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  @media(max-width:540px){.egg-battle{grid-template-columns:1fr;}}
+  /* ═══ 모바일 최적화 ═══ */
+  .area-hint{font-size:12px;color:var(--muted-text);margin:-14px 0 12px;}
+  .search-result-msg:empty{display:none;}
+  @media(max-width:640px){
+    .container{padding:0 14px;}
+    .section{padding:36px 0 22px;}
+    .section-header{gap:12px;margin-bottom:18px;}
+    .section-icon{width:40px;height:40px;font-size:18px;}
+    .section-title span{font-size:10.5px;letter-spacing:.5px;}
+    .nav-tabs{justify-content:flex-start;}
+    .nav-tab{padding:10px 11px;font-size:12px;}
+    .search-wrap{padding:7px 12px 8px;}
+    .search-input{padding:8px 40px 8px 12px;font-size:16px;border-radius:10px;}
+    .search-input::placeholder{font-size:13px;}
+    .search-result-msg{margin-top:5px;font-size:11.5px;}
+    .card-actions{padding-left:0;gap:8px;}
+    .card-actions .copy-btn,.card-actions .name-copy{font-size:11px;padding:6px 11px;min-height:30px;}
+    .meta-item{font-size:12px;}
+    /* 표 → 세로 카드형 */
+    .area-table-wrap{overflow:visible;}
+    .area-table-wrap table,.area-table-wrap tbody,.area-table-wrap tr,.area-table-wrap td{display:block;width:100% !important;}
+    .area-table-wrap thead{display:none;}
+    .area-table-wrap tr{padding:12px 14px;border-bottom:1px solid var(--border);}
+    .area-table-wrap tr:last-child{border-bottom:none;}
+    .area-table-wrap td{padding:0 !important;white-space:normal !important;border:none !important;}
+    .area-table-wrap td:first-child{margin-bottom:4px;font-size:13px;}
+    .area-table-wrap td:first-child br{display:none;}
+    .area-table-wrap td:first-child small::before{content:" · ";}
+    .area-table-wrap td:nth-child(2){font-size:14px;line-height:1.75;}
+    .area-table-wrap td:nth-child(3),.area-table-wrap td:nth-child(4){display:inline;width:auto !important;font-size:12px;color:var(--muted-text);}
+    .area-table-wrap td:nth-child(4)::before{content:" · ";}
+    .area-link{padding:1px 0;}
+  }
+
+  .egg-card{border-radius:18px;padding:20px;border:2px solid transparent;transition:all 0.2s;position:relative;}
+  .egg-card.lord{background:linear-gradient(135deg,#FEF9EE,#FDF0D5);border-color:#E8B84B;}
+  .egg-card.margaret{background:linear-gradient(135deg,#EEF4FE,#D5E4FD);border-color:#93C5FD;}
+  .egg-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,0.1);}
+  .egg-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .egg-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;}
+  .lord .egg-badge{background:var(--gold);color:white;}
+  .margaret .egg-badge{background:#2563EB;color:white;}
+  .egg-card h3{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;color:var(--dark-brown);margin-bottom:3px;}
+  .egg-card .eng{font-size:10.5px;color:var(--muted-text);margin-bottom:8px;}
+  .egg-feature{font-size:12.5px;color:var(--medium-brown);line-height:1.7;margin-bottom:10px;}
+  .verdict-box{background:var(--dark-brown);color:var(--cream);border-radius:14px;padding:16px 20px;font-size:13px;line-height:1.8;}
+  .verdict-box strong{color:var(--gold-light);}
+
+  /* TABLE */
+  .area-table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--warm-white);border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+  thead th{background:var(--dark-brown);color:var(--gold-light);font-weight:700;padding:12px 15px;text-align:left;font-size:11.5px;}
+  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--cream);}
+  tbody td{padding:11px 15px;color:var(--medium-brown);vertical-align:top;}
+  tbody td:first-child{font-weight:700;color:var(--dark-brown);white-space:nowrap;width:110px;}
+
+  /* TIPS */
+  .tips-grid{display:grid;gap:13px;}
+  .tip-card{display:grid;grid-template-columns:46px 1fr;gap:14px;align-items:flex-start;background:var(--warm-white);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .tip-num{width:42px;height:42px;border-radius:50%;background:var(--dark-brown);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:17px;font-weight:700;flex-shrink:0;}
+  .tip-content h4{font-weight:700;font-size:14px;color:var(--dark-brown);margin-bottom:4px;}
+  .tip-content p{font-size:13px;color:var(--muted-text);line-height:1.7;}
+  .warning-box{background:rgba(122,31,31,0.06);border:1px solid rgba(122,31,31,0.18);border-radius:11px;padding:13px 17px;font-size:12.5px;color:#7A1F1F;margin-top:20px;line-height:1.7;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:#1C1C1E;color:#fff;padding:11px 24px;border-radius:30px;font-size:13px;font-weight:600;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:640px){.restaurant-card{padding:18px 16px 14px;}.copy-btn{font-size:10px;padding:5px 10px;}
+    .card-top{flex-wrap:wrap;}
+    .card-left{flex:1 1 100%;}
+    .card-actions{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;width:100%;padding-left:40px;}
+  }
+  .fade-in{opacity:0;transform:translateY(14px);animation:fadeUp 0.5s ease forwards;}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+  .fade-in:nth-child(1){animation-delay:.04s}.fade-in:nth-child(2){animation-delay:.10s}
+  .fade-in:nth-child(3){animation-delay:.16s}.fade-in:nth-child(4){animation-delay:.22s}
+  .fade-in:nth-child(5){animation-delay:.28s}.fade-in:nth-child(6){animation-delay:.34s}
+  .fade-in:nth-child(7){animation-delay:.40s}
+
+  /* ── 검색 바 ── */
+  .search-wrap{
+    background:#2E0818;
+    padding:10px 16px 12px;
+    position:sticky;
+    top:42px;          /* nav 높이 대응 — 모바일/데스크탑 공통 */
+    z-index:99;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .search-inner{max-width:900px;margin:0 auto;}
+  /* 입력창 + X버튼을 감싸는 행 */
+  .search-row{position:relative;display:flex;align-items:center;}
+  .search-input{
+    flex:1;
+    padding:12px 48px 12px 16px;  /* 우측 패딩으로 X버튼 공간 확보 */
+    border-radius:12px;
+    border:1.5px solid rgba(240,192,160,0.3);
+    background:rgba(255,255,255,0.07);
+    color:#FEFAF4;
+    font-size:15px;               /* 모바일 가독성 향상 */
+    font-family:'Noto Sans KR',sans-serif;
+    outline:none;
+    transition:border-color 0.2s;
+    -webkit-appearance:none;      /* iOS 기본 스타일 제거 */
+    appearance:none;
+  }
+  .search-input::placeholder{color:rgba(253,246,237,0.38);font-size:13px;}
+  .search-input:focus{border-color:#F0C0A0;}
+  /* X버튼: 입력창 내부 오른쪽에 고정 */
+  .search-clear{
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(255,255,255,0.12);
+    border:none;
+    color:rgba(253,246,237,0.7);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    width:24px;height:24px;
+    border-radius:50%;
+    display:none;
+    align-items:center;justify-content:center;
+    line-height:1;
+    padding:0;
+    flex-shrink:0;
+  }
+  .search-clear.visible{display:flex;}
+  .search-result-msg{
+    margin-top:7px;
+    font-size:12px;
+    color:rgba(253,246,237,0.5);
+    font-family:'Noto Sans KR',sans-serif;
+    min-height:15px;
+    padding:0 2px;
+  }
+  .search-result-msg strong{color:#F0C0A0;}
+  /* 검색 하이라이트 */
+  .restaurant-card.search-match{
+    outline:2.5px solid #F0C0A0;
+    box-shadow:0 0 0 5px rgba(240,192,160,0.18);
+    transition:outline 0.2s,box-shadow 0.2s;
+  }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast">✅ 프롬프트 복사 완료!</div>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-flag">🇲🇴</span>
+  <h1><em>마카오 맛집</em> 데이터 자료</h1>
+  <p class="hero-sub">2026년 기준 · 반도 · 타이파 · 코타이 · 콜로안 · 총 44곳</p>
+  <div class="hero-desc">
+    각 식당 이름 옆 <strong>📋 프롬프트 복사</strong> 버튼 클릭<br>
+    → AI에 붙여넣기 → <strong>"이 정보로 카카오톡 전송용 HTML 카드 만들어줘"</strong>
+  </div>
+</div>
+
+<!-- NAV — button 태그 사용, 외부링크 없음 -->
+<nav class="nav-tabs">
+  <button class="nav-tab" onclick="goTo('cantonese')">🍜 광동식</button>
+  <button class="nav-tab" onclick="goTo('portuguese')">🇵🇹 포르투갈</button>
+  <button class="nav-tab" onclick="goTo('dimsum')">🥟 딤섬·중화</button>
+  <button class="nav-tab" onclick="goTo('sichuan')">🌶️ 쓰촨</button>
+  <button class="nav-tab" onclick="goTo('cafe')">☕ 카페·디저트</button>
+  <button class="nav-tab" onclick="goTo('bakery')">🥐 베이커리</button>
+  <button class="nav-tab" onclick="goTo('western')">🍽️ 서양식</button>
+  <button class="nav-tab" onclick="goTo('korean')">🇰🇷 한식</button>
+  <button class="nav-tab" onclick="goTo('foodcourt')">🏮 푸드코트</button>
+  <button class="nav-tab" onclick="goTo('michelin')">⭐ 미슐랭</button>
+  <button class="nav-tab" onclick="goTo('areamap')">📍 지역별</button>
+  <button class="nav-tab" onclick="goTo('tips')">💡 꿀팁</button>
+</nav>
+
+<!-- 검색 바 -->
+<div class="search-wrap">
+  <div class="search-inner">
+    <div class="search-row">
+      <input class="search-input" id="searchInput" type="text"
+        placeholder="🔍 식당명 검색 · 윙레이, 팀호완, 에그타르트…"
+        oninput="doSearch(this.value)"
+        autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+    </div>
+    <div class="search-result-msg" id="searchMsg"></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══ 광동식 ══ -->
+<section class="section" id="cantonese">
+  <div class="section-header">
+    <div class="section-icon icon-cantonese">🍜</div>
+    <div class="section-title"><span>Cantonese</span>광동식</div>
+  </div>
+
+  <!-- 01 윙레이 -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-01">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">01</div>
+        <div class="card-name"><h3>윙레이 永利軒</h3><div class="eng">Wing Lei · 윈 마카오 G/F</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'윙레이 永利軒','Wing Lei','광동식','반도 · 윈 마카오 G층','점심 11:30~15:00 / 저녁 18:00~23:00','연중무휴','예약 필수 (최소 1주일 전)','미슐랭 2스타 · 포브스 5스타','+853 8986 3663','딤섬 세트, 베이징덕, 새우만두, 차슈바오','MOP 400~450','https://maps.app.goo.gl/LuikruBZgiUFvkpB7','https://www.wynnresortsmacau.com/en/wynn-macau/dining/wing-lei','윙레이·지얏힌은 최소 1주일 전 예약 필수. 런치 딤섬 세트는 가장 인기')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">⭐⭐ 미슐랭 2스타</span><span class="michelin-badge">포브스 5스타</span><span class="reserve-badge">★★ 예약 필수</span></div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 윈 마카오 G층</span><span class="meta-item">🕐 점심 11:30~15:00 / 저녁 18:00~23:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85389863663">📞 +853 8986 3663</a><a class="contact-btn menu-link" href="https://www.wynnresortsmacau.com/en/wynn-macau/dining/wing-lei" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">딤섬 세트</span><span class="menu-pill highlight">베이징덕</span><span class="menu-pill">새우만두</span><span class="menu-pill">차슈바오</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 400~450</div><a class="map-link" href="https://maps.app.goo.gl/LuikruBZgiUFvkpB7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 02 지얏힌 -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-02">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">02</div>
+        <div class="card-name"><h3>지얏힌 紫逸軒</h3><div class="eng">Zi Yat Heen · 포시즌스 호텔</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'지얏힌 紫逸軒','Zi Yat Heen','광동식','코타이 · 포시즌스 호텔','점심 12:00~15:00 / 저녁 18:00~22:30','연중무휴','예약 필수','미슐랭 1스타 17년 연속','+853 2881 8818','딤섬 세트, 새우만두, 광동식 BBQ','MOP 500 이상','https://maps.app.goo.gl/sJcbh8tJUuKnLmD59','https://www.ziyatheen.com/menus/','최소 1주일 전 예약 필수')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">⭐ 미슐랭 1스타 17년 연속</span><span class="reserve-badge">★ 예약 필수</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 포시즌스 호텔</span><span class="meta-item">🕐 점심 12:00~15:00 / 저녁 18:00~22:30</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328818818">📞 +853 2881 8818</a><a class="contact-btn menu-link" href="https://www.ziyatheen.com/menus/" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">딤섬 세트</span><span class="menu-pill">새우만두</span><span class="menu-pill">광동식 BBQ</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 500 이상</div><a class="map-link" href="https://maps.app.goo.gl/sJcbh8tJUuKnLmD59" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 03 웡치케이 -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-03">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">03</div>
+        <div class="card-name"><h3>웡치케이 黃枝記</h3><div class="eng">Wong Chi Kei · 1946년 창업 · 3대째 운영</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'웡치케이 黃枝記','Wong Chi Kei','광동식','반도 · 세나도 광장 인근','매일 09:30~21:00','연중무휴','예약 불가 (현장 대기)','1946년 창업 · 3대째 운영','+853 2833 1313','새우완탕면, 차슈 덮밥, 완탕면','MOP 70 이상','https://maps.app.goo.gl/wdHDTJTJ1LPi5iCc6','https://i.yp.mo/wongchikei/product.html','오전 9~11시 방문하면 대기 없이 식사 가능. 세나도 광장 관광 동선에 최적')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">현장 대기 (예약 불가)</span></div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 세나도 광장 인근</span><span class="meta-item">🕐 매일 09:30~21:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328331313">📞 +853 2833 1313</a><a class="contact-btn menu-link" href="https://i.yp.mo/wongchikei/product.html" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">새우완탕면</span><span class="menu-pill">차슈 덮밥</span><span class="menu-pill">완탕면</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 70 이상</div><a class="map-link" href="https://maps.app.goo.gl/wdHDTJTJ1LPi5iCc6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 04 신무이 -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-04">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">04</div>
+        <div class="card-name"><h3>신무이 타이파점</h3><div class="eng">新武二廣潮福粉麵 · 20년+ 조주식 면 전문</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'신무이 타이파점','新武二廣潮福粉麵','광동식','타이파 · 花城 주택가','매일 07:00~18:30','연중무휴','예약 불가','20년+ 조주식 면 전문 · 로컬 숨은 보석','+853 2884 3946','굴 소면, 닭날개 튀김, 소고기 완자면','MOP 60 이상','https://maps.app.goo.gl/qo1vLXcJMDE4oeFM7','없음','오전 9~11시 방문하면 대기 없이 식사 가능')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">예약 불가</span></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 花城 주택가</span><span class="meta-item">🕐 매일 07:00~18:30</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328843946">📞 +853 2884 3946</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">굴 소면</span><span class="menu-pill">닭날개 튀김</span><span class="menu-pill">소고기 완자면</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 60 이상</div><a class="map-link" href="https://maps.app.goo.gl/qo1vLXcJMDE4oeFM7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 05 영도죽 -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-05">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">05</div>
+        <div class="card-name"><h3>영도죽 贏到粥</h3><div class="eng">야식 · 저녁 식사 전문</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'영도죽 贏到粥','Yeng Dou Jok','광동식','반도 · 마카오 반도','16:00~익일 01:00','방문 전 확인 필요','예약 불가','야식 · 저녁 식사 전문','+853 2896 7899','조개 샤브샤브, 피단 수육죽, 해물죽','MOP 100~200','https://maps.app.goo.gl/qtiwEN1diSkBi5hp8','https://www.facebook.com/yengdoujok','저녁 식사 후 야식으로 추천. 새벽 1시까지 운영')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">예약 불가</span><span class="cat-badge">🌙 야식</span></div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 마카오 반도</span><span class="meta-item">🕐 16:00~익일 01:00</span><span class="meta-item">📅 방문 전 확인 필요</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328967899">📞 +853 2896 7899</a><a class="contact-btn menu-link" href="https://www.facebook.com/yengdoujok" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">조개 샤브샤브</span><span class="menu-pill highlight">피단 수육죽</span><span class="menu-pill">해물죽</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 100~200</div><a class="map-link" href="https://maps.app.goo.gl/qtiwEN1diSkBi5hp8" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <!-- 디에잇 The Eight -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-theeight">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>디에잇 The Eight</h3><div class="eng">그랜드 리스보아 2층 · 숫자 8 = 마카오식 행운의 상징</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'디에잇 The Eight','The Eight','광동식 (딤섬·광동 파인다이닝)','반도 · 그랜드 리스보아 2층 (Grand Lisboa Macau)','화~일 11:30~15:00 / 18:00~22:00','월요일 휴무','예약 필수','미슐랭 2스타 · Black Pearl 2 Diamond · La Liste 54위','+853 8803 7788','금붕어 모양 새우 교자, 바삭한 BBQ 포크 번, 40종 이상 딤섬, 광동식 바비큐, 아르헨티나 새우·호주 랍스터 요리','MOP 300~400','https://maps.app.goo.gl/E9pYXongcaoPrjnd8','https://www.grandlisboa.com/kr/restaurants-n-bars/the-eight','그랜드 리스보아 세계 최고 와인 셀러 공유 — 17,800종 이상 보유. 스마트 캐주얼 드레스코드 필수.')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="michelin-badge">⭐⭐ 미슐랭 2스타</span>
+      <span class="michelin-badge">🏆 Black Pearl 2 Diamond</span>
+      <span class="reserve-badge">★★ 예약 필수</span>
+    </div>
+    <div class="card-meta">
+      <span class="meta-item">📍 반도 · 그랜드 리스보아 2층</span>
+      <span class="meta-item">🕐 화~일 11:30~15:00 / 18:00~22:00</span>
+      <span class="meta-item">📅 월요일 휴무</span>
+    </div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388037788">📞 +853 8803 7788</a>
+      <a class="contact-btn menu-link" href="https://www.grandlisboa.com/kr/restaurants-n-bars/the-eight" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">금붕어 모양 새우 교자</span>
+      <span class="menu-pill highlight">40종 이상 딤섬</span>
+      <span class="menu-pill">광동식 바비큐</span>
+      <span class="menu-pill">랍스터 요리</span>
+      <span class="menu-pill">블랙&화이트 참깨 푸딩</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 300~400</div>
+      <a class="map-link" href="https://maps.app.goo.gl/E9pYXongcaoPrjnd8" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+
+  <!-- 제이드 드래곤 Jade Dragon -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-jadedragon">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>제이드 드래곤 譽瓏軒</h3><div class="eng">Jade Dragon · 시티 오브 드림즈 2층 West Side</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'제이드 드래곤 譽瓏軒','Jade Dragon','광동식 (파인다이닝)','코타이 · 시티 오브 드림즈 2층 West Side','점심 12:00~15:00 / 저녁 18:00~22:30','방문 전 확인','예약 권장 (온라인 예약 가능)','미슐랭 3스타 · 블랙펄 3다이아몬드','+853 8868 2822','이베리코 프라임컷 차슈, 캐비아 새끼돼지 바비큐, 제이드 드래곤 딤섬, 질라르도 굴 튀김','MOP 500 이상','https://www.google.com/maps/place/Jade+Dragon/@22.1493676,113.5650439,17z/data=!4m15!1m8!3m7!1s0x340170043facbe21:0xe3277d75154f72ed!2sJade+Dragon!8m2!3d22.1493676!4d113.5650439!10e5!16s%2Fg%2F11b6dq2zyz!3m5!1s0x340170043facbe21:0xe3277d75154f72ed!8m2!3d22.1493676!4d113.5650439!16s%2Fg%2F11b6dq2zyz?entry=ttu&amp;g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D','https://www.cityofdreamsmacau.com/kr/dining/jade-dragon','마카오 미슐랭 3스타 광동식. 스마트 캐주얼 — 남성은 긴바지·닫힌 신발 필수. 10세 이상만 입장')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="michelin-badge">⭐⭐⭐ 미슐랭 3스타</span>
+      <span class="michelin-badge">🏆 Black Pearl 3 Diamond</span>
+      <span class="reserve-badge">★ 예약 권장</span>
+      <span class="cat-badge">10세 이상 입장</span>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 시티 오브 드림즈 2층 West Side</span><span class="meta-item">🕐 점심 12:00~15:00 / 저녁 18:00~22:30</span></div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388682822">📞 +853 8868 2822</a>
+      <a class="contact-btn menu-link" href="https://www.cityofdreamsmacau.com/kr/dining/jade-dragon" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">이베리코 차슈</span>
+      <span class="menu-pill highlight">캐비아 새끼돼지 바비큐</span>
+      <span class="menu-pill">제이드 드래곤 딤섬</span>
+      <span class="menu-pill">질라르도 굴 튀김</span>
+    </div>
+    <p class="card-note">스마트 캐주얼 · 남성은 긴바지와 닫힌 신발 필수</p>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 500 이상</div>
+      <a class="map-link" href="https://www.google.com/maps/place/Jade+Dragon/@22.1493676,113.5650439,17z/data=!4m15!1m8!3m7!1s0x340170043facbe21:0xe3277d75154f72ed!2sJade+Dragon!8m2!3d22.1493676!4d113.5650439!10e5!16s%2Fg%2F11b6dq2zyz!3m5!1s0x340170043facbe21:0xe3277d75154f72ed!8m2!3d22.1493676!4d113.5650439!16s%2Fg%2F11b6dq2zyz?entry=ttu&amp;g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <!-- 라이힌 Lai Heen -->
+  <div class="restaurant-card card-cantonese fade-in" id="card-laiheen">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>라이힌 麗軒</h3><div class="eng">Lai Heen · 리츠칼튼 마카오 51층 (갤럭시 마카오)</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'라이힌 麗軒','Lai Heen','광동식 (파인다이닝)','코타이 · 갤럭시 마카오 리츠칼튼 51층','점심 화~금 12:00~15:00 / 토·일 11:30~13:00, 13:30~15:00 · 저녁 화~일 18:00~22:00','월요일 휴무','예약 권장 (7인 이상은 전화 예약)','미슐랭 1스타 · 마카오에서 가장 높은 중식당','+853 8886 6868','제비집 게살 볶음, 칠레산 농어 마늘 튀김, 포트와인 새우 캐서롤','MOP 500 이상','https://www.google.com/maps/place/Lai+Heen/@22.1464141,113.5547277,17z/data=!4m15!1m8!3m7!1s0x3401700db8a635b9:0x3e793186d3706d90!2sLai+Heen!8m2!3d22.1464141!4d113.5547277!10e5!16s%2Fg%2F11bwd8c2fg!3m5!1s0x3401700db8a635b9:0x3e793186d3706d90!8m2!3d22.1464141!4d113.5547277!16s%2Fg%2F11bwd8c2fg?entry=ttu&amp;g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D','https://www.galaxymacau.com/dining/restaurants/lai-heen/','51층 코타이 전망. 스마트 캐주얼 — 슬리퍼·민소매·반바지 불가. 홀은 6세 이상 입장')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="michelin-badge">⭐ 미슐랭 1스타</span>
+      <span class="reserve-badge">★ 예약 권장</span>
+      <span class="cat-badge">51층 전망</span>
+    </div>
+    <div class="card-meta">
+      <span class="meta-item">📍 코타이 · 갤럭시 마카오 리츠칼튼 51층</span>
+      <span class="meta-item">🕐 점심 화~금 12:00~15:00 / 토·일 11:30~15:00 (13:00~13:30 휴식)</span>
+      <span class="meta-item">🕐 저녁 화~일 18:00~22:00</span>
+      <span class="meta-item">📅 월요일 휴무</span>
+    </div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388866868">📞 +853 8886 6868</a>
+      <a class="contact-btn menu-link" href="https://www.galaxymacau.com/dining/restaurants/lai-heen/" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">제비집 게살 볶음</span>
+      <span class="menu-pill highlight">칠레산 농어 마늘 튀김</span>
+      <span class="menu-pill">포트와인 새우 캐서롤</span>
+    </div>
+    <p class="card-note">스마트 캐주얼 · 슬리퍼·민소매·반바지 불가 · 홀은 6세 이상 입장</p>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 500 이상</div>
+      <a class="map-link" href="https://www.google.com/maps/place/Lai+Heen/@22.1464141,113.5547277,17z/data=!4m15!1m8!3m7!1s0x3401700db8a635b9:0x3e793186d3706d90!2sLai+Heen!8m2!3d22.1464141!4d113.5547277!10e5!16s%2Fg%2F11bwd8c2fg!3m5!1s0x3401700db8a635b9:0x3e793186d3706d90!8m2!3d22.1464141!4d113.5547277!16s%2Fg%2F11bwd8c2fg?entry=ttu&amp;g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <div class="group-tip">💡 <strong>광동식 TIP</strong> — 윙레이·지얏힌·디에잇은 최소 <strong>1주일 전 예약 필수</strong>. 웡치케이·신무이는 오전 9~11시 방문하면 대기 없이 식사 가능. 영도죽은 저녁 식사 후 야식으로 추천!</div>
+</section>
+
+<!-- ══ 포르투갈 ══ -->
+<section class="section" id="portuguese">
+  <div class="section-header">
+    <div class="section-icon icon-portuguese">🇵🇹</div>
+    <div class="section-title"><span>Portuguese · Macanese Cuisine</span>포르투갈 · Macanese Cuisine</div>
+  </div>
+
+  <!-- 06 A Lorcha -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-06">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">06</div>
+        <div class="card-name"><h3>아 로르차 A Lorcha 船屋葡國餐廳</h3><div class="eng">1989년 창업</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'A Lorcha 船屋葡國餐廳','A Lorcha','포르투갈식','반도 · 아마 사원 도보 1분','수~월 12:30~15:30 / 18:30~22:30','화요일 정기 휴무','예약 필수','미슐랭 빕구르망 (2026 승격) · 1989년 창업','+853 2831 3193','바칼라우 파타니스카스, 마늘 조개볶음, 도브라디냐, 초리조 숯불구이','MOP 150~400','https://maps.app.goo.gl/fnbDmh3K9xLUqaPE7','https://alorcha.com/files/8215/1913/1124/menu2018.pdf','아마 사원 관광 동선에 포함 최적. 화요일 정기 휴무')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">🍽 미슐랭 빕구르망</span><span class="reserve-badge">★★ 예약 필수</span></div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 아마 사원 도보 1분</span><span class="meta-item">🕐 수~월 12:30~15:30 / 18:30~22:30</span><span class="meta-item">📅 화요일 정기 휴무</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328313193">📞 +853 2831 3193</a><a class="contact-btn menu-link" href="https://alorcha.com/files/8215/1913/1124/menu2018.pdf" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">바칼라우 파타니스카스</span><span class="menu-pill highlight">마늘 조개볶음</span><span class="menu-pill">도브라디냐</span><span class="menu-pill">초리조 숯불구이</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 150~400</div><a class="map-link" href="https://maps.app.goo.gl/fnbDmh3K9xLUqaPE7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 07 리토랄 -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-07">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">07</div>
+        <div class="card-name"><h3>리토랄 海灣餐廳</h3><div class="eng">Restaurante Litoral · 타이파 빌리지 인근</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'리토랄 海灣餐廳','Restaurante Litoral','포르투갈식','타이파 · 타이파 빌리지 인근','점심 11:30~15:00 / 저녁 18:00~21:30','비정기 휴무 가능','예약 권장 (주말 점심 혼잡)','미슐랭 빕구르망 (2026) · 타이파 빌리지 인근 포르투갈 레스토랑','+853 2882 5255','아프리칸 치킨, 커리 크랩, 바칼라우, 세라두라','MOP 300~400','https://maps.app.goo.gl/1nudDZhpRPvbLL1t8','https://www.restaurantelitoral-taipa.com/menu','타이파 빌리지 쇼핑과 묶어 방문 추천. 주말 점심 혼잡하니 예약 권장')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">🍽 미슐랭 빕구르망</span><span class="cat-badge">주말 점심 혼잡 · 예약 권장</span></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 타이파 빌리지 인근</span><span class="meta-item">🕐 점심 11:30~15:00 / 저녁 18:00~21:30</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328825255">📞 +853 2882 5255</a><a class="contact-btn menu-link" href="https://www.restaurantelitoral-taipa.com/menu" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">아프리칸 치킨</span><span class="menu-pill highlight">커리 크랩</span><span class="menu-pill">바칼라우</span><span class="menu-pill">세라두라</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 300~400</div><a class="map-link" href="https://maps.app.goo.gl/1nudDZhpRPvbLL1t8" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 08 미라마 -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-08">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">08</div>
+        <div class="card-name"><h3>미라마 美麗華餐廳</h3><div class="eng">Miramar · 학사 해변 유일 포르투갈 레스토랑 · 오션뷰</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'미라마 美麗華餐廳','Miramar Restaurant','포르투갈식','콜로안 · 학사 해변(黑沙海灘)','수~월 11:00~22:00 / 주말 11:00~23:00','화요일 정기 휴무','주말 예약 필수','학사 해변 유일 포르투갈 레스토랑 · 오션뷰','+853 2888 2623','셰프 클램 볶음, 통 소 갈비, 바칼라우 볼','MOP 300~350','https://maps.app.goo.gl/4iiTZ5ye3LQ14T1w6','https://www.miramarmacau.com','학사 해변 나들이와 세트로 방문. 화요일 정기 휴무. 주말 예약 필수')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="reserve-badge">★★ 주말 예약 필수</span></div>
+    <div class="card-meta"><span class="meta-item">📍 콜로안 · 학사 해변(黑沙海灘)</span><span class="meta-item">🕐 수~월 11:00~22:00 / 주말 11:00~23:00</span><span class="meta-item">📅 화요일 정기 휴무</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328882623">📞 +853 2888 2623</a><a class="contact-btn menu-link" href="https://www.miramarmacau.com" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">셰프 클램 볶음</span><span class="menu-pill highlight">통 소 갈비</span><span class="menu-pill">바칼라우 볼</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 300~350</div><a class="map-link" href="https://maps.app.goo.gl/4iiTZ5ye3LQ14T1w6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 09 카사 머퀴스타 -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-09">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">09</div>
+        <div class="card-name"><h3>카사 머퀴스타</h3><div class="eng">Casa Maquista 土生公館 · Macanese Cuisine</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'카사 머퀴스타','Casa Maquista 土生公館','Macanese Cuisine (마카오 토착식)','타이파 · 주택 박물관 (타이파 빌리지)','10:00~22:00','없음','예약 권장','마카오 500년 토착 문화 체험','+853 6217 6332','미치(Minchi), 아프리칸 치킨, 포르투갈-중국 퓨전','MOP 200~600','https://maps.app.goo.gl/YW985EGKDqW3tKvm7','없음','마카오 토착 Macanese Cuisine 체험 장소. 타이파 빌리지 주택 박물관 건물 내')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">Macanese Cuisine</span><span class="cat-badge">예약 권장</span></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 주택 박물관 (타이파 빌리지)</span><span class="meta-item">🕐 10:00~22:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85362176332">📞 +853 6217 6332</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">미치 (Minchi)</span><span class="menu-pill">아프리칸 치킨</span><span class="menu-pill">포르투갈-중국 퓨전</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 200~600</div><a class="map-link" href="https://maps.app.goo.gl/YW985EGKDqW3tKvm7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <!-- ALBERGUE 1601 -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-albergue">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>알베르게 1601 ALBERGUE 1601</h3><div class="eng">알베르게 (포르투갈어: 여인숙·숙소) · 8 Calçada da Igreja de São Lázaro · 성 라자루스 교구 · 포르투갈 셰프 운영</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'알베르게 1601 ALBERGUE 1601','ALBERGUE 1601','포르투갈식','반도 · 8 Calçada da Igreja de São Lázaro (성 라자루스 교구)','점심 12:00~15:00 / 저녁 17:30~22:00','없음','예약 필수','미슐랭 등재 · 포르투갈 셰프 운영 · 100년 된 노란 건물 · 야외 중정 보유','+853 2836 1601','페팅가스 프리타스 (정어리 튀김), 레이탕 아사도 (통돼지 구이), 폴보 라가레이로 (문어 구이), 포르투갈 화이트 와인','MOP 200~500','https://maps.app.goo.gl/LeD9Xf9nmdK42ub9A','https://inline.app/booking/ALBERGUE1601/Macau','100년 된 노란 건물과 수백 년 수령 녹나무 그늘 아래 야외 중정 테이블 분위기가 포르투갈 현지 느낌 그대로. 소규모 레스토랑이라 예약 필수!')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="michelin-badge">🏅 미슐랭 등재</span>
+      <span class="reserve-badge">★ 예약 필수</span>
+    </div>
+    <div class="card-meta">
+      <span class="meta-item">📍 반도 · 성 라자루스 교구 (São Lázaro)</span>
+      <span class="meta-item">🕐 점심 12:00~15:00 / 저녁 17:30~22:00</span>
+      <span class="meta-item">📅 연중무휴</span>
+    </div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85328361601">📞 +853 2836 1601</a>
+      <a class="contact-btn menu-link" href="https://inline.app/booking/ALBERGUE1601/Macau" target="_blank">📅 예약 바로가기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">페팅가스 프리타스 (정어리 튀김)</span>
+      <span class="menu-pill highlight">레이탕 아사도 (통돼지 구이)</span>
+      <span class="menu-pill">폴보 라가레이로 (문어 구이)</span>
+      <span class="menu-pill">포르투갈 화이트 와인</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 200~500</div>
+      <a class="map-link" href="https://maps.app.goo.gl/LeD9Xf9nmdK42ub9A" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <!-- 포르투코 Portucau -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-portucau">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>포르투코 Portucau 澳葡坊</h3><div class="eng">Portugal + Macau 합성어 · 빈티지 레트로 인테리어 · 포르투갈 셰프 Pedro Almeida</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'포르투코 Portucau 澳葡坊','Portucau 澳葡坊','포르투갈 타파스 (Petiscos) · 맥주·와인','반도 · Travessa do Paço (세나도 광장 Avenida de Almeida Ribeiro 옆 골목)','점심 12:00~15:00 / 저녁 17:30~22:00','없음','예약 권장','빈티지 레트로 인테리어 · 포르투갈 타파스 전문 · 라이브 밴드 정기 공연','+853 2859 6336','페티스코스 (포르투갈 타파스 모둠), 포르투갈 맥주, 레드·화이트 와인','MOP 200~400','https://maps.app.goo.gl/DmmGWVutY59UuKFE8','https://inline.app/booking/-OPnc3iVnyMOsmnhzXKZ%3Ainline-live-3/-OPnc3pkcr6tg7g3pNfw','세나도 광장 야간 관광 후 방문 추천. 포르투갈에서 직접 가져온 앤티크 소품으로 장식된 독특한 공간. 라이브 밴드 공연 정기 진행.')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="cat-badge">🍺 타파스·맥주</span>
+      <span class="cat-badge">🎸 라이브 밴드</span>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 세나도 광장 인근 Travessa do Paço</span><span class="meta-item">🕐 점심 12:00~15:00 / 저녁 17:30~22:00</span></div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85328596336">📞 +853 2859 6336</a>
+      <a class="contact-btn menu-link" href="https://inline.app/booking/-OPnc3iVnyMOsmnhzXKZ%3Ainline-live-3/-OPnc3pkcr6tg7g3pNfw" target="_blank">📅 예약 바로가기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">페티스코스 (포르투갈 타파스)</span>
+      <span class="menu-pill highlight">포르투갈 맥주</span>
+      <span class="menu-pill">레드·화이트 와인</span>
+      <span class="menu-pill">포르투갈 정통 요리</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 200~400</div>
+      <a class="map-link" href="https://maps.app.goo.gl/DmmGWVutY59UuKFE8" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <div class="group-tip">💡 <strong>포르투갈 TIP</strong> — A Lorcha·ALBERGUE 1601·포르투코는 반도 관광 동선에 포함 최적. 리토랄은 타이파 빌리지 쇼핑과 묶어 방문. <strong>미라마는 학사 해변 나들이와 세트로!</strong></div>
+</section>
+
+<!-- ══ 딤섬·중화 ══ -->
+<section class="section" id="dimsum">
+  <div class="section-header">
+    <div class="section-icon icon-dimsum">🥟</div>
+    <div class="section-title"><span>Dim Sum &amp; Chinese</span>딤섬 · 중화</div>
+  </div>
+
+  <!-- 10 팀호완 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-10">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">10</div>
+        <div class="card-name"><h3>팀호완 添好運</h3><div class="eng">Tim Ho Wan · The Londoner점</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'팀호완 添好運','Tim Ho Wan','딤섬','코타이 · 런더너 마카오 1층 1050호','매일 08:30~23:00','연중무휴','현장 방문 (QR 주문)','홍콩 본점(삼수이포) 미슐랭 빕구르망','+853 2836 2288','구운 BBQ 번, 새우만두, 초이삼 볶음, 볶음밥','MOP 70~200','https://maps.app.goo.gl/Ua2Ue1JhCYRqbmaa7','없음','팀호완·첼시 가든·Cheesecake Factory 런더너 호텔 동선으로 묶기 최적')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">🍽 홍콩 본점 미슐랭 빕구르망</span><span class="cat-badge">QR 주문</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 런더너 마카오 1층 1050호</span><span class="meta-item">🕐 매일 08:30~23:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328362288">📞 +853 2836 2288</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">구운 BBQ 번</span><span class="menu-pill highlight">새우만두</span><span class="menu-pill">초이삼 볶음</span><span class="menu-pill">볶음밥</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 70~200</div><a class="map-link" href="https://maps.app.goo.gl/Ua2Ue1JhCYRqbmaa7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 11 첼시 가든 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-11">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">11</div>
+        <div class="card-name"><h3>첼시 가든 Chelsea Garden</h3><div class="eng">The Londoner Macao · 광동·딤섬·마카오 토착·쓰촨·BBQ 복합 다이닝</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'첼시 가든 Chelsea Garden','Chelsea Garden','딤섬·복합 다이닝 (광동·Macanese·쓰촨·BBQ·한식·동남아)','코타이 · 런더너 마카오 1층','24시간 영업','없음 (24시간 영업)','예약 권장','복합 다이닝 레스토랑','+853 8118 8822','수제 딤섬, 마카오 토착 요리(Macanese), 쓰촨 요리, 홍콩식 BBQ, 한식 시그니처, 동남아 요리','MOP 150~300','https://maps.app.goo.gl/sdfsfawpi5avnPwY6','https://assets.sandsresortsmacao.cn/ebook/MENU/chelsea-garden-digital-menu-ensc/index.html','팀호완·Cheesecake Factory와 런더너 호텔 같은 날 동선으로 묶기 최적')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="reserve-badge">★ 예약 권장</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 런더너 마카오 1층</span><span class="meta-item">🕐 24시간 영업</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85381188822">📞 +853 8118 8822</a><a class="contact-btn menu-link" href="https://assets.sandsresortsmacao.cn/ebook/MENU/chelsea-garden-digital-menu-ensc/index.html" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">수제 딤섬</span><span class="menu-pill highlight">마카오 토착 요리 (Macanese)</span><span class="menu-pill">쓰촨 요리</span><span class="menu-pill">홍콩식 BBQ</span><span class="menu-pill">한식 시그니처</span><span class="menu-pill">동남아 요리</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 150~300</div><a class="map-link" href="https://maps.app.goo.gl/sdfsfawpi5avnPwY6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 12 북방관 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-12">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">12</div>
+        <div class="card-name"><h3>북방관 北方館</h3><div class="eng">North · The Venetian · 오픈 키친 도삭면 퍼포먼스</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'북방관 北方館','North (The Venetian)','쓰촨·동북 중화식','코타이 · 베네시안 마카오 1층 1015호','매일 11:00~23:00','연중무휴','예약 권장 (주말 웨이팅)','오픈 키친 도삭면 퍼포먼스 · 한국인 단골','+853 8118 9980','탄탄면(매움 주의), 도삭면, 우육면, 가지튀김, 마파두부, 꿔바로우','MOP 120~200','https://maps.app.goo.gl/qM4hmU8BFot9Piqr7','https://assets.sandsresortsmacao.cn/content/venetianmacao/dining/signature/north/vm-north_menu_ko.pdf','탄탄면 매우 매우니 덜 맵게 요청 가능. 주말 웨이팅 있으니 예약 권장')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">쓰촨·동북</span><span class="cat-badge">주말 웨이팅 · 예약 권장</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 베네시안 마카오 1층 1015호</span><span class="meta-item">🕐 매일 11:00~23:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85381189980">📞 +853 8118 9980</a><a class="contact-btn menu-link" href="https://assets.sandsresortsmacao.cn/content/venetianmacao/dining/signature/north/vm-north_menu_ko.pdf" target="_blank">🍽 메뉴(한국어)</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">탄탄면 (매움 주의)</span><span class="menu-pill highlight">도삭면</span><span class="menu-pill">우육면</span><span class="menu-pill">가지튀김</span><span class="menu-pill">마파두부</span><span class="menu-pill">꿔바로우</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 120~200</div><a class="map-link" href="https://maps.app.goo.gl/qM4hmU8BFot9Piqr7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 13 크리스탈 제이드 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-13">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">13</div>
+        <div class="card-name"><h3>크리스탈 제이드 翡翠拉麵小籠包</h3><div class="eng">Crystal Jade · 파리지앵 마카오점</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'크리스탈 제이드 翡翠拉麵小籠包','Crystal Jade','중화식','코타이 · 파리지앵 마카오 1층 3122호','매일 11:00~23:00','연중무휴','현장 방문','파리지앵 마카오 내','+853 8111 9220','샤오롱바오, 탄탄면, 계란 볶음밥','MOP 100~','https://www.google.com/maps/place/Crystal+Jade+La+Mian+Xiao+Long+Bao+%E2%80%93+The+Parisian+Macao/@22.1438449,113.5613645,17z/data=!3m1!4b1!4m6!3m5!1s0x3401701a848ffffb:0x14205f345c739692!8m2!3d22.1438449!4d113.5613645!16s%2Fg%2F11c7sqk194?entry=ttu&amp;g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D','https://assets.sandsresortsmacao.cn/content/parisianmacao/dining/crystal-jade/crystal-jade_main-menu_ko.pdf?_gl=1*1pn8ugp*_gcl_au*MTAxMDU1NTkyNS4xNzg5ODI5MjM5*_ga*NDgzNzQ0MzQ3LjE3ODk4MjkyMzk.*_ga_CCKE5Z3T7T*czE3OTE2ODMwNTAkbzMkZzAkdDE3OTE2ODMwOTkkajExJGwwJGgw','파리지앵 마카오 내 위치. 크리스탈 제이드와 함께 방문 가능')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 파리지앵 마카오 1층 3122호</span><span class="meta-item">🕐 매일 11:00~23:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85381119220">📞 +853 8111 9220</a><a class="contact-btn menu-link" href="https://assets.sandsresortsmacao.cn/content/parisianmacao/dining/crystal-jade/crystal-jade_main-menu_ko.pdf?_gl=1*1pn8ugp*_gcl_au*MTAxMDU1NTkyNS4xNzg5ODI5MjM5*_ga*NDgzNzQ0MzQ3LjE3ODk4MjkyMzk.*_ga_CCKE5Z3T7T*czE3OTE2ODMwNTAkbzMkZzAkdDE3OTE2ODMwOTkkajExJGwwJGgw" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">샤오롱바오</span><span class="menu-pill">탄탄면</span><span class="menu-pill">계란 볶음밥</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 100~</div><a class="map-link" href="https://www.google.com/maps/place/Crystal+Jade+La+Mian+Xiao+Long+Bao+%E2%80%93+The+Parisian+Macao/@22.1438449,113.5613645,17z/data=!3m1!4b1!4m6!3m5!1s0x3401701a848ffffb:0x14205f345c739692!8m2!3d22.1438449!4d113.5613645!16s%2Fg%2F11c7sqk194?entry=ttu&amp;g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 14 真點心 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-14">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">14</div>
+        <div class="card-name"><h3>젠딤섬 Zhen Dim Sum 真點心 노바몰점</h3><div class="eng">타이파 · 노바몰 2층 224-225호</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'젠딤섬 Zhen Dim Sum 真點心 노바몰점','Zhen Dim Sum (Nova Mall)','딤섬','타이파 · 노바몰 2층 224-225호','평일 11:30~22:00 / 주말 10:00~22:00','없음','현장 방문','타이파 노바몰 내 딤섬 전문점','+853 2883 2266','새우만두, 샤오마이, 딤섬류 전반','MOP 60~','https://maps.app.goo.gl/6zUV9pume6BWa5iUA','https://www.zhends.com/page96','타이파 노바몰 쇼핑과 묶어 방문')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 노바몰 2층 224-225호</span><span class="meta-item">🕐 평일 11:30~22:00 / 주말 10:00~22:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328832266">📞 +853 2883 2266</a><a class="contact-btn menu-link" href="https://www.zhends.com/page96" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">새우만두</span><span class="menu-pill highlight">샤오마이</span><span class="menu-pill">딤섬류 전반</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 60~</div><a class="map-link" href="https://maps.app.goo.gl/6zUV9pume6BWa5iUA" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 젠딤섬 스튜디오시티점 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-zhen-sc">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>젠딤섬 Zhen Dim Sum 真點心 스튜디오시티점</h3><div class="eng">코타이 · 스튜디오 시티 1층 1011호</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'젠딤섬 Zhen Dim Sum 真點心 스튜디오시티점','Zhen Dim Sum Kitchen (스튜디오시티점)','딤섬','코타이 · 스튜디오 시티 1층 1011호','월~목 08:00~22:00 / 금~일 08:00~22:30','없음 (매일 영업)','현장 방문','마카오 토종 딤섬 체인 · 아침 8시 오픈','+853 2822 2898','새우만두, 샤오마이, 딤섬류 전반','MOP 100~150','https://maps.app.goo.gl/rTctA2DfHQy4PvtA8','https://www.studiocity-macau.com/kr/dining/zhen-dim-sum-kitchen','스튜디오 시티 투숙객 아침 식사로 추천. 금~일은 22:30까지')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">🌅 아침 8시 오픈</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 스튜디오 시티 1층 1011호</span><span class="meta-item">🕐 월~목 08:00~22:00 / 금~일 08:00~22:30</span><span class="meta-item">📅 매일 영업</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328222898">📞 +853 2822 2898</a><a class="contact-btn menu-link" href="https://www.studiocity-macau.com/kr/dining/zhen-dim-sum-kitchen" target="_blank">🍽 매장 정보</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">새우만두</span><span class="menu-pill highlight">샤오마이</span><span class="menu-pill">딤섬류 전반</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 100~150</div><a class="map-link" href="https://maps.app.goo.gl/rTctA2DfHQy4PvtA8" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 젠딤섬 시티오브드림즈점 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-zhen-cod">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>젠딤섬 Zhen Dim Sum 真點心 시티오브드림즈점</h3><div class="eng">코타이 · 시티 오브 드림즈 2층 SOHO</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'젠딤섬 Zhen Dim Sum 真點心 시티오브드림즈점','Zhen Dim Sum Kitchen (시티오브드림즈점)','딤섬','코타이 · 시티 오브 드림즈 2층 SOHO (남쪽 구역)','매일 08:00~22:00','없음 (매일 영업)','현장 방문','마카오 토종 딤섬 체인 · 아침 8시 오픈','+853 2888 0181','새우만두, 샤오마이, 딤섬류 전반','MOP 100~150','https://maps.app.goo.gl/MbJSTkvyQH2So12YA','https://cityofdreamsmacau.com/kr/dining/zhen-dim-sum-kitchen','시티 오브 드림즈 2층 SOHO 식당가 안. 하우스 오브 댄싱 워터 관람 전후 가볍게 식사하기 좋음')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">🌅 아침 8시 오픈</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 시티 오브 드림즈 2층 SOHO</span><span class="meta-item">🕐 매일 08:00~22:00</span><span class="meta-item">📅 매일 영업</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328880181">📞 +853 2888 0181</a><a class="contact-btn menu-link" href="https://cityofdreamsmacau.com/kr/dining/zhen-dim-sum-kitchen" target="_blank">🍽 매장 정보</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">새우만두</span><span class="menu-pill highlight">샤오마이</span><span class="menu-pill">딤섬류 전반</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 100~150</div><a class="map-link" href="https://maps.app.goo.gl/MbJSTkvyQH2So12YA" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 15 카오카오찬 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-15">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">15</div>
+        <div class="card-name"><h3>카오카오찬 餃餃鎮 Dumpling Town</h3><div class="eng">성 도미니크 성당 인근</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'카오카오찬 餃餃鎮 Dumpling Town','Dumpling Town','만두 전문','반도 · 성 도미니크 성당 인근','12:00~22:00','없음','현장 방문','성 도미니크 성당 인근 수제 만두 전문점','없음','마라만두, 시금치만두, 수제 만두류','MOP 50~','https://maps.app.goo.gl/ZkGhJ3d5BvgZ4t5R9','없음','성 도미니크 성당 관광 동선에 포함 최적')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">만두</span></div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 성 도미니크 성당 인근</span><span class="meta-item">🕐 12:00~22:00</span></div>
+    <div class="menu-pills"><span class="menu-pill highlight">마라만두</span><span class="menu-pill">시금치만두</span><span class="menu-pill">수제 만두류</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 50~</div><a class="map-link" href="https://maps.app.goo.gl/ZkGhJ3d5BvgZ4t5R9" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <!-- 베이징 키친 -->
+  <div class="restaurant-card card-dimsum fade-in" id="card-beijingkitchen">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>베이징 키친 滿堂彩 Beijing Kitchen</h3><div class="eng">그랜드 하얏트 마카오 1층 · 정통 북경 요리 · 225석 규모</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'베이징 키친 滿堂彩 Beijing Kitchen','Beijing Kitchen','북경식 (북방 중화)','코타이 · 그랜드 하얏트 마카오 1층 (Grand Hyatt Macau)','점심 매일 12:00~15:00 / 저녁 매일 17:30~22:00','연중무휴','예약 권장','정통 북경 요리 · 장작 가마 베이징덕 · 225석 규모','+853 8868 1930','베이징 장작 구이 오리, 딤섬, 수제 면, 연화전 (전통 찐빵), 더블 보일드 수프, 쿵파오 치킨','MOP 200~400','https://maps.app.goo.gl/tKCTLLsYiVBjpLrU9','https://www.hyatt.com/content/dam/hotel/propertysites/assets/grand/macgh/documents/en_US/dining/beijing-kitchen/Main-Menu.pdf','장작 가마에서 구운 베이징덕이 시그니처')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="cat-badge">🦆 북경식</span>
+      <span class="cat-badge">연중무휴</span>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 그랜드 하얏트 마카오 1층</span><span class="meta-item">🕐 점심 12:00~15:00 / 저녁 17:30~22:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388681930">📞 +853 8868 1930</a>
+      <a class="contact-btn menu-link" href="https://www.hyatt.com/content/dam/hotel/propertysites/assets/grand/macgh/documents/en_US/dining/beijing-kitchen/Main-Menu.pdf" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">베이징 장작 구이 오리 (시그니처)</span>
+      <span class="menu-pill highlight">딤섬</span>
+      <span class="menu-pill">수제 면</span>
+      <span class="menu-pill">쿵파오 치킨</span>
+      <span class="menu-pill">더블 보일드 수프</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 200~400</div>
+      <a class="map-link" href="https://maps.app.goo.gl/tKCTLLsYiVBjpLrU9" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 쓰촨 ══ -->
+<section class="section" id="sichuan">
+  <div class="section-header">
+    <div class="section-icon icon-sichuan">🌶️</div>
+    <div class="section-title"><span>Sichuan · Spicy</span>쓰촨 · 매운 음식</div>
+  </div>
+
+  <!-- 16 타이파 쑤완라펀 -->
+  <div class="restaurant-card card-sichuan fade-in" id="card-16">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">16</div>
+        <div class="card-name"><h3>쑤완라펀 酸辣粉 타이파점</h3><div class="eng">심야 영업</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'쑤완라펀 酸辣粉 타이파점','Suan La Fen Taipa','쓰촨식','타이파 · 쇼핑몰·주택가','12:00~익일 03:00','없음','현장 방문','심야 영업','+853 2884 3218','산라펀 酸辣粉 (고구마 당면 매운 새콤 국수)','MOP 60~100','https://maps.app.goo.gl/vBheuLCAQPSoyfT1A','없음','새벽 3시까지 운영. 매운 음식 덜 맵게 요청 가능')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 쇼핑몰·주택가</span><span class="meta-item">🕐 12:00~익일 03:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328843218">📞 +853 2884 3218</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">산라펀 酸辣粉</span></div>
+    <p class="card-note">고구마 당면 매운 새콤 국수</p>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 60~100</div><a class="map-link" href="https://maps.app.goo.gl/vBheuLCAQPSoyfT1A" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 17 반도 쑤완라펀 -->
+  <div class="restaurant-card card-sichuan fade-in" id="card-17">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">17</div>
+        <div class="card-name"><h3>쑤완라펀 酸辣粉 반도점</h3><div class="eng">新口岸(NAPE) · 아침 8시 오픈</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'쑤완라펀 酸辣粉 반도점','Suan La Fen Peninsula','쓰촨식','반도 · 新口岸(NAPE) 北京街','화~일 08:00~익일 05:00 / 월 08:00~24:00','없음 (매일 영업)','현장 방문','아침부터 새벽까지 영업','+853 2870 0077','산라펀 酸辣粉 (고구마 당면 매운 새콤 국수)','MOP 60~100','https://maps.app.goo.gl/8YJUBYAH9hmHNHWP7','없음','아침 8시부터 영업해 식사 시간 언제든 방문 가능. 화~일은 새벽 5시까지 운영 (월요일은 자정까지)')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">🌅 아침 8시 오픈</span></div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 新口岸(NAPE) 北京街</span><span class="meta-item">🕐 화~일 08:00~익일 05:00</span><span class="meta-item">🕐 월 08:00~24:00</span><span class="meta-item">📅 매일 영업</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328700077">📞 +853 2870 0077</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">산라펀 酸辣粉</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 60~100</div><a class="map-link" href="https://maps.app.goo.gl/8YJUBYAH9hmHNHWP7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <!-- 하이디라오 海底撈 Haidilao 베네시안점 -->
+  <div class="restaurant-card card-sichuan fade-in" id="card-hdl-venetian">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>하이디라오 海底撈 Haidilao 베네시안점</h3><div class="eng">Haidilao Hot Pot · 베네시안 1층 1036A호</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'하이디라오 海底撈 Haidilao 베네시안점','Haidilao Hot Pot (The Venetian)','쓰촨식 훠궈','코타이 · 베네시안 마카오 1층 1036A호','영업시간 확인 필요','방문 전 확인','현장 대기 (피크타임 웨이팅)','중국 대표 훠궈 체인','+853 2886 0050','마라·토마토·버섯 육수 훠궈','MOP 250~450','https://maps.app.goo.gl/SUV7wpgwNME7ugo16','없음','런더너점과 가까움')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">훠궈</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 베네시안 1층 1036A호</span><span class="meta-item">🕐 영업시간 확인 필요</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328860050">📞 +853 2886 0050</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">마라 육수</span><span class="menu-pill highlight">토마토 육수</span><span class="menu-pill">버섯 육수</span><span class="menu-pill">소고기·완자 훠궈</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 250~450</div><a class="map-link" href="https://maps.app.goo.gl/SUV7wpgwNME7ugo16" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 하이디라오 海底撈 Haidilao 런더너점 -->
+  <div class="restaurant-card card-sichuan fade-in" id="card-hdl-londoner">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>하이디라오 海底撈 Haidilao 런더너점</h3><div class="eng">Haidilao Hot Pot · 런더너 1층 1048A호</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'하이디라오 海底撈 Haidilao 런더너점','Haidilao Hot Pot (The Londoner)','쓰촨식 훠궈','코타이 · 런더너 마카오 1층 1048A호','영업시간 확인 필요','방문 전 확인','현장 대기 (피크타임 웨이팅)','중국 대표 훠궈 체인','+853 2886 0056','마라·토마토·버섯 육수 훠궈','MOP 250~450','https://maps.app.goo.gl/KYuZHPLMy59JNayH7','없음','베네시안점과 가까움')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">훠궈</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 런더너 1층 1048A호</span><span class="meta-item">🕐 영업시간 확인 필요</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328860056">📞 +853 2886 0056</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">마라 육수</span><span class="menu-pill highlight">토마토 육수</span><span class="menu-pill">버섯 육수</span><span class="menu-pill">소고기·완자 훠궈</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 250~450</div><a class="map-link" href="https://maps.app.goo.gl/KYuZHPLMy59JNayH7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <div class="group-tip">💡 <strong>쓰촨 TIP</strong> — 탄탄면·산라펀은 실제로 매우 매우니 덜 맵게 요청하세요. 카오카오찬은 성 도미니크 성당 관광 동선과 묶기 좋아요!</div>
+</section>
+
+<!-- ══ 카페·디저트 ══ -->
+<section class="section" id="cafe">
+  <div class="section-header">
+    <div class="section-icon icon-cafe">☕</div>
+    <div class="section-title"><span>Café &amp; Dessert</span>카페 · 디저트</div>
+  </div>
+
+  <!-- 18 세이 키 카페 -->
+  <div class="restaurant-card card-cafe fade-in" id="card-18">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">18</div>
+        <div class="card-name"><h3>세이 키 카페 世記咖啡</h3><div class="eng">타이파점 · 1965년 창업 · 60년 전통</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'세이 키 카페 世記咖啡','Sek Ki Cafe (Taipa)','카페','타이파 · 타이파 빌리지 입구 광장','매일 10:30~18:30','월요일 휴무','테이크아웃 중심','미슐랭 등재 · 1965년 창업 · 60년 전통','+853 6569 1214','클레이팟 밀크티, 돼지갈비 번, 클레이팟 커피, 땅콩버터 토스트','MOP 40~80','https://maps.app.goo.gl/ZhDMmN84NkABFap97','없음','월요일 정기 휴무. 타이파 빌리지 쇼핑 전후 방문 최적')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">🏅 미슐랭 등재</span><span class="cat-badge">테이크아웃 중심</span></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 타이파 빌리지 입구 광장</span><span class="meta-item">🕐 매일 10:30~18:30</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85365691214">📞 +853 6569 1214</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">클레이팟 밀크티</span><span class="menu-pill highlight">돼지갈비 번</span><span class="menu-pill">클레이팟 커피</span><span class="menu-pill">땅콩버터 토스트</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 40~80</div><a class="map-link" href="https://maps.app.goo.gl/ZhDMmN84NkABFap97" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 19 이순 밀크 -->
+  <div class="restaurant-card card-cafe fade-in" id="card-19">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">19</div>
+        <div class="card-name"><h3>이순 밀크 義順牛奶公司</h3><div class="eng">신마루점 · 150년 역사 밀크 푸딩 원조</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'이순 밀크 義順牛奶公司','Yee Shun Milk Company','디저트 카페','반도 · 新馬路 381 · 세나도 광장 도보 3분','11:00~21:00','없음','현장 방문','150년 역사 밀크 푸딩 원조','+853 2858 3384','더블스킨 밀크 푸딩, 생강 밀크 커드, 홍두 더블스킨','MOP 30~60','https://maps.app.goo.gl/2EdabUTfaMo5BAoj6','없음','세나도 광장 관광 중 간식으로 완벽')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 新馬路 381 · 세나도 광장 도보 3분</span><span class="meta-item">🕐 11:00~21:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328583384">📞 +853 2858 3384</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">더블스킨 밀크 푸딩</span><span class="menu-pill">생강 밀크 커드</span><span class="menu-pill">홍두 더블스킨</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 30~60</div><a class="map-link" href="https://maps.app.goo.gl/2EdabUTfaMo5BAoj6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 20 La Paloma -->
+  <div class="restaurant-card card-cafe fade-in" id="card-20">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">20</div>
+        <div class="card-name"><h3>라 팔로마 La Paloma 芭朗瑪餐廳</h3><div class="eng">La Paloma · 매커니즈 요리 · 정통 포르투갈 요리 · 스페인식 · 애프터눈 티</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'라 팔로마 La Paloma 芭朗瑪餐廳','La Paloma','포르투갈식·매커니즈·스페인식 카페','반도 · 아마 사원 인근','매일 10:00~22:00','연중무휴','현장 방문','아마 사원 인근 애프터눈 티 전문점','+853 2882 1333','애프터눈 티','MOP 100~200','https://maps.app.goo.gl/e7gubPyeLwwkwKR17','없음','A Lorcha 방문과 아마 사원 관광 동선으로 함께 묶기 최적. 오후 2~5시 추천')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 반도 · 아마 사원 인근</span><span class="meta-item">🕐 매일 10:00~22:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328821333">📞 +853 2882 1333</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">애프터눈 티</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 100~200</div><a class="map-link" href="https://maps.app.goo.gl/e7gubPyeLwwkwKR17" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 21 로드스토우즈 카페 -->
+  <div class="restaurant-card card-cafe fade-in" id="card-21">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">21</div>
+        <div class="card-name"><h3>로드스토우즈 카페</h3><div class="eng">安德魯咖啡店 Lord Stow's Cafe · 콜로안 나들이 필수 휴식처</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'로드스토우즈 카페','Lord Stow\'s Cafe','카페','콜로안 · 콜로안 빌리지 인근','매일 09:00~18:00','없음','현장 방문','콜로안 나들이 필수 휴식처','+853 2888 2174','갓 구운 에그타르트, 커피·밀크티, 갈릭 소시지 롤','MOP 40~100','https://maps.app.goo.gl/3U9VxcZqcnc5WWfs5','https://www.lordstow.com/macau-outlet/lord-stows-bakery-taipa/?lang=zh-hant','로드 스토우 베이커리 본점과 가까워 함께 방문 가능. 콜로안 빌리지 산책 후 휴식 최적')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 콜로안 · 콜로안 빌리지 인근</span><span class="meta-item">🕐 매일 09:00~18:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328882174">📞 +853 2888 2174</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">갓 구운 에그타르트</span><span class="menu-pill">커피 · 밀크티</span><span class="menu-pill">갈릭 소시지 롤</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 40~100</div><a class="map-link" href="https://maps.app.goo.gl/3U9VxcZqcnc5WWfs5" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <!-- gaga 갤럭시 -->
+  <div class="restaurant-card card-cafe fade-in" id="card-gaga">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>가가 gaga — 갤럭시 마카오</h3><div class="eng">심천 브랜드 99번째 · 첫 해외 점포 · 2025년 8월 오픈</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'가가 gaga 갤럭시 마카오','gaga Galaxy Macau','카페·라이프스타일 다이닝','코타이 · 갤럭시 마카오 G층 G009A호','오전 11:00~오후 10:00','없음','현장 방문','심천 브랜드 99번째 매장 · 첫 해외 점포 · 2025년 8월 오픈 · All-Day Chill 콘셉트','+853 8883 2221','시그니처 커피, 새우페이스트 시푸드 파스타 (마카오 익스클루시브), 세라두라 케이크 (마카오 익스클루시브), 웰니스 음료','MOP 100~200','https://maps.app.goo.gl/bcRbg8Tc56YuA3xHA','https://img.galaxymacau.com/2026-08/gaga%20menu_20260805_v3.pdf','갤럭시 마카오 쇼핑몰 산책 겸 방문 최적. 마카오 익스클루시브 메뉴인 세라두라 케이크 강추!')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">🌿 웰니스 다이닝</span><span class="cat-badge">All-Day Chill</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 갤럭시 마카오 G층 G009A호</span><span class="meta-item">🕐 오전 11:00~오후 10:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388832221">📞 +853 8883 2221</a>
+      <a class="contact-btn menu-link" href="https://img.galaxymacau.com/2026-08/gaga%20menu_20260805_v3.pdf" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">새우페이스트 시푸드 파스타 (마카오 익스클루시브)</span>
+      <span class="menu-pill highlight">세라두라 케이크 (마카오 익스클루시브)</span>
+      <span class="menu-pill">시그니처 커피</span>
+      <span class="menu-pill">웰니스 음료</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 100~200</div>
+      <a class="map-link" href="https://maps.app.goo.gl/bcRbg8Tc56YuA3xHA" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <!-- 차베이 Cha Bei -->
+  <div class="restaurant-card card-cafe fade-in" id="card-chabei">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>차베이 Cha Bei</h3><div class="eng">갤럭시 마카오 1F Shop 1047 · 라이프스타일 카페 · 창업자 Joanna Lui (Francis Lui 딸)</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'차베이 Cha Bei','Cha Bei','라이프스타일 카페','코타이 · 갤럭시 마카오 1층 Shop 1047','매일 12:00~20:00','없음','현장 방문 또는 예약 가능','수플레 팬케이크 · 아보카도 번 버거 · 건강식 · 파스텔 플로럴 인테리어','+853 8883 2221','수플레 팬케이크, 아보카도 번 버거, 사쿠라 에비 스파게티, 차베이 샐러드 (그린망고·퀴노아), 웰니스 스무디','MOP 50~100','https://maps.app.goo.gl/XArEKj9kNX7iUZQbA','https://www.galaxymacau.com/dining/restaurants/chabei/','갤럭시 마카오 쇼핑 전후 방문 최적. 수플레 팬케이크는 주문 즉시 만들어 10~15분 소요. 인스타그램 핫스팟.')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="cat-badge">🌿 웰니스 카페</span>
+      <span class="cat-badge">📸 인스타 핫스팟</span>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 갤럭시 마카오 1층 Shop 1047</span><span class="meta-item">🕐 매일 12:00~20:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388832221">📞 +853 8883 2221</a>
+      <a class="contact-btn menu-link" href="https://www.galaxymacau.com/dining/restaurants/chabei/" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">수플레 팬케이크</span>
+      <span class="menu-pill highlight">아보카도 번 버거</span>
+      <span class="menu-pill">사쿠라 에비 스파게티</span>
+      <span class="menu-pill">차베이 샐러드</span>
+      <span class="menu-pill">웰니스 스무디</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 50~100</div>
+      <a class="map-link" href="https://maps.app.goo.gl/XArEKj9kNX7iUZQbA" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <div class="group-tip">💡 <strong>카페 TIP</strong> — 세이 키 카페는 타이파 빌리지 쇼핑 전후, 이순 밀크는 세나도 광장 관광 중 간식으로 완벽. 라 팔로마는 A Lorcha·아마 사원 동선으로 묶기 최적! gaga·차베이는 갤럭시 마카오 쇼핑 후 힐링 카페로 딱!</div>
+</section>
+
+<!-- ══ 베이커리·에그타르트 ══ -->
+<section class="section" id="bakery">
+  <div class="section-header">
+    <div class="section-icon icon-bakery">🥐</div>
+    <div class="section-title"><span>Bakery &amp; Egg Tart</span>베이커리 · 에그타르트</div>
+  </div>
+  <p style="font-size:13px;color:var(--muted-text);margin-bottom:18px;line-height:1.8;">1989년 영국인 앤드루 스토우가 콜로안에 로드 스토우 베이커리를 열었고, 이혼 후 그의 부인 마가렛이 독립해 마가렛 카페를 창업했다. <strong style="color:var(--dark-brown)">같은 DNA, 다른 스타일</strong>의 마카오 에그타르트 양대 산맥.</p>
+
+  <div class="egg-battle">
+    <!-- 로드스토우 본점 -->
+    <div class="egg-card lord" id="egg-lord">
+      <div class="egg-header">
+        <span class="egg-badge">원조 · 콜로안 본점</span>
+        <button class="copy-btn" style="font-size:10px;padding:5px 10px;" onclick="cp(this,'로드 스토우 베이커리 본점','Lord Stow\'s Bakery (Coloane)','베이커리·에그타르트','콜로안 · 콜로안 빌리지','매일 07:00~21:00','월요일 휴무','현장 구매','1989년 창업 · 마카오 에그타르트 원조','+853 2888 2534','에그타르트, 갈릭 소시지 롤','에그타르트 MOP 11/개, 6개 MOP 65','https://maps.app.goo.gl/kr1GL6Eefnj5ukmo8','https://www.lordstow.com/macau-outlet/lord-stows-bakery-taipa/?lang=zh-hant','오전 10시~오후 2시 방문이 가장 신선. 월요일 휴무. 콜로안 빌리지 산책과 함께 방문 추천')">📋 복사</button>
+      </div>
+      <h3>로드 스토우 베이커리 본점</h3>
+      <div class="eng">安德魯餅店 路環本店 · 1989년 창업</div>
+      <div class="egg-feature">🥐 겹겹이 살아있는 결, 더 바삭한 크러스트<br>🍮 부드럽고 고소한 필링<br>🎨 색깔이 더 짙고 먹음직스러운 외관</div>
+      <div class="menu-pills"><span class="menu-pill">에그타르트</span><span class="menu-pill">갈릭 소시지 롤</span></div>
+      <div class="card-meta" style="margin-top:10px;"><span class="meta-item">📍 콜로안 빌리지</span><span class="meta-item">🕐 매일 07:00~21:00</span><span class="meta-item">📅 월요일 휴무</span></div>
+      <div class="contact-row" style="margin-top:10px;"><a class="contact-btn phone" href="tel:+85328882534">📞 +853 2888 2534</a></div>
+      <a class="map-link" style="margin-top:12px;display:inline-flex;" href="https://maps.app.goo.gl/kr1GL6Eefnj5ukmo8" target="_blank">🗺 지도 보기</a>
+    </div>
+    <!-- 마가렛 -->
+    <div class="egg-card margaret" id="egg-margaret">
+      <div class="egg-header">
+        <span class="egg-badge">반도점 · 전 부인 운영</span>
+        <button class="copy-btn" style="font-size:10px;padding:5px 10px;" onclick="cp(this,'마가렛 카페 이 나타','Margaret\'s Café e Nata','베이커리·에그타르트','반도 · 新馬路 인근 골목 17B','월~목 08:30~16:30 / 금~일 10:00~18:00','수요일 휴무','현장 구매','로드 스토우 전 부인 운영 · 반도 위치','+853 2871 0032','에그타르트, 밀크티, 샌드위치','에그타르트 MOP 11/개, 6개 MOP 65','https://maps.app.goo.gl/NfrGdiCJvLjPLFm97','https://i.yp.mo/margaret/?language=TC','오후 3~4시 이후 품절 주의. 수요일 휴무. 세나도 광장 관광 동선 포함 최적')">📋 복사</button>
+      </div>
+      <h3>마가렛 카페 이 나타</h3>
+      <div class="eng">瑪嘉烈蛋撻店 · 新馬路 인근 골목 17B</div>
+      <div class="egg-feature">🥐 조금 더 부드러운 크러스트<br>🍮 더 달콤하고 크리미한 필링<br>☕ 커피·밀크티·샌드위치 함께 즐길 수 있음</div>
+      <div class="menu-pills"><span class="menu-pill">에그타르트</span><span class="menu-pill">밀크티</span><span class="menu-pill">샌드위치</span></div>
+      <div class="card-meta" style="margin-top:10px;"><span class="meta-item">📍 반도 · 세나도 광장 인근</span><span class="meta-item">🕐 월~목 08:30~16:30 / 금~일 10:00~18:00</span><span class="meta-item">📅 수요일 휴무</span></div>
+      <div class="contact-row" style="margin-top:10px;"><a class="contact-btn phone" href="tel:+85328710032">📞 +853 2871 0032</a><a class="contact-btn menu-link" href="https://i.yp.mo/margaret/?language=TC" target="_blank">🍽 메뉴</a></div>
+      <a class="map-link" style="margin-top:12px;display:inline-flex;" href="https://maps.app.goo.gl/NfrGdiCJvLjPLFm97" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+  <div class="verdict-box">🏆 <strong>결론</strong> — 바삭·고소함 → <strong>로드스토우</strong> / 달콤·부드러움 → <strong>마가렛</strong><br>에그타르트는 반드시 <strong>갓 구워진 따뜻한 것</strong>으로. 마가렛은 오후 3~4시 이후 품절 주의!</div>
+
+  <!-- 22 로드스토우 타이파점 -->
+  <div class="restaurant-card card-bakery fade-in" id="card-22" style="margin-top:18px;">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">22</div>
+        <div class="card-name"><h3>로드 스토우 베이커리 타이파점</h3><div class="eng">安德魯餅店 氹仔店 · 카카오페이·카드 결제 가능 · 포장만 가능</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'로드 스토우 베이커리 타이파점','Lord Stow\'s Bakery (Taipa)','베이커리·에그타르트','타이파 · 관야가 중심 (Rua do Cunha)','09:00~19:00','없음','포장만 가능','카카오페이·카드 결제 가능','없음','에그타르트','에그타르트 MOP 13/개, 6개 MOP 75, 12개 MOP 150','https://maps.app.goo.gl/hw53LUDuYJVCRB7m6','https://www.lordstow.com/macau-outlet/lord-stows-bakery-taipa/?lang=zh-hant','타이파 빌리지 쿤하거리 쇼핑 중 방문 최적. 포장만 가능. 카카오페이 결제 가능')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 관야가 중심 (Rua do Cunha)</span><span class="meta-item">🕐 09:00~19:00</span><span class="meta-item">포장만 가능</span></div>
+    <div class="menu-pills"><span class="menu-pill highlight">에그타르트</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 13~</div><a class="map-link" href="https://maps.app.goo.gl/hw53LUDuYJVCRB7m6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 23 레몬 첼로 -->
+  <div class="restaurant-card card-bakery fade-in" id="card-23">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">23</div>
+        <div class="card-name"><h3>레몬 첼로 LemonCello Gelato</h3><div class="eng">타이파점 · Rua do Regedor 115</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'레몬 첼로 LemonCello Gelato','LemonCello Gelato (Taipa)','젤라또','타이파 · 타이파 빌리지 Rua do Regedor 115','매일 12:00~22:00','없음','현장 구매','미슐랭 스트리트 4년 연속','없음','시그니처 레몬첼로, 자몽, 모히또, 레인보우','싱글 MOP 30 / 더블 MOP 45','https://maps.app.goo.gl/DPJ9eTXtHY6sVAySA','없음','세이 키 카페와 함께 타이파 빌리지에서 한 번에 방문 가능')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">🏅 미슐랭 스트리트 4년 연속</span></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 타이파 빌리지 Rua do Regedor 115</span><span class="meta-item">🕐 매일 12:00~22:00</span></div>
+    <div class="menu-pills"><span class="menu-pill highlight">시그니처 레몬첼로</span><span class="menu-pill">자몽 / 모히또 / 레인보우</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / 싱글 MOP 30 / 더블 MOP 45</div><a class="map-link" href="https://maps.app.goo.gl/DPJ9eTXtHY6sVAySA" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+      <div class="group-tip">💡 <strong>베이커리 TIP</strong> — 레몬 첼로는 세이 키 카페와 함께 타이파 빌리지에서 한 번에 방문 가능. <strong>로드스토우(콜로안) vs 마가렛(반도) 비교 방문이 마카오 미식 하이라이트!</strong> 차베이·gaga는 갤럭시 마카오에서 한 번에 묶기 좋아요!</div>
+</section>
+
+<!-- ══ 서양식 ══ -->
+<section class="section" id="western">
+  <div class="section-header">
+    <div class="section-icon icon-western">🍽️</div>
+    <div class="section-title"><span>Western</span>서양식</div>
+  </div>
+
+  <!-- 26 치즈케이크 팩토리 -->
+  <div class="restaurant-card card-western fade-in" id="card-26">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">26</div>
+        <div class="card-name"><h3>치즈케이크 팩토리 The Cheesecake Factory 芝樂坊</h3><div class="eng">더 런더너 호텔 · 어린이 동반 가족 여행객 추천</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'치즈케이크 팩토리 The Cheesecake Factory 芝樂坊','The Cheesecake Factory','서양식','코타이 · 런더너 쇼핑센터 2층 2203D&amp;E호','오전 11:00~오후 11:00','없음','현장 방문','어린이 동반 가족 여행객 추천','+853 2882 3398','시그니처 치즈케이크, 파스타, 버거, 샐러드','MOP 100~','https://maps.app.goo.gl/nqZsDxxFzgTiX8uW7','없음','런더너 호텔 내 팀호완·첼시 가든과 같은 날 동선으로 묶기 최적. 가족 여행 추천')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 런더너 쇼핑센터 2층 2203D&amp;E호</span><span class="meta-item">🕐 오전 11:00~오후 11:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328823398">📞 +853 2882 3398</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">시그니처 치즈케이크</span><span class="menu-pill">파스타</span><span class="menu-pill">버거</span><span class="menu-pill">샐러드</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 100~</div><a class="map-link" href="https://maps.app.goo.gl/nqZsDxxFzgTiX8uW7" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <!-- 폰타나 Fontana -->
+  <div class="restaurant-card card-western fade-in" id="card-fontana">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>폰타나 Fontana</h3><div class="eng">이탈리아 레스토랑 · 윈 팰리스 · Wine Spectator Best of Award of Excellence 2025</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'폰타나 Fontana','Fontana','이탈리아식','코타이 · 윈 팰리스 1층','조식 뷔페 07:00~11:00 / 점심 12:00~15:00 / 저녁 18:00~23:00','없음','현장 방문 또는 예약 권장','Wine Spectator Best of Award of Excellence 2025 · 이탈리아 정통 요리','+853 8889 3663','조식 뷔페, 파스타, 리소토, 해산물 요리, 이탈리아 와인','MOP 200~500','https://maps.app.goo.gl/AS8pPdTQVgPqeJc19','https://www.wynnresortsmacau.com/ko/wynn-palace/dining/fontana','윈 팰리스 쇼핑·관광 후 저녁 식사로 최적. 이탈리아 와인 셀렉션 우수.')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row">
+      <span class="michelin-badge">🍷 Wine Spectator 2025</span>
+      <span class="cat-badge">🇮🇹 이탈리아식</span>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 윈 팰리스 1층</span><span class="meta-item">🕐 조식 뷔페 07:00~11:00 / 점심 12:00~15:00 / 저녁 18:00~23:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row">
+      <a class="contact-btn phone" href="tel:+85388893663">📞 +853 8889 3663</a>
+      <a class="contact-btn menu-link" href="https://www.wynnresortsmacau.com/ko/wynn-palace/dining/fontana" target="_blank">🍽 메뉴 보기</a>
+    </div>
+    <div class="menu-pills">
+      <span class="menu-pill highlight">조식 뷔페</span>
+      <span class="menu-pill highlight">파스타</span>
+      <span class="menu-pill highlight">리소토</span>
+      <span class="menu-pill">해산물 요리</span>
+      <span class="menu-pill">이탈리아 와인</span>
+    </div>
+    <div class="card-bottom">
+      <div class="price-tag">💰 1인당 예상가 / MOP 200~500</div>
+      <a class="map-link" href="https://maps.app.goo.gl/AS8pPdTQVgPqeJc19" target="_blank">🗺 지도 보기</a>
+    </div>
+  </div>
+
+  <!-- 그릴 58 Grill 58 -->
+  <div class="restaurant-card card-western fade-in" id="card-grill58">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>그릴 58 Grill 58</h3><div class="eng">Grill 58 · MGM 코타이 스펙터클 내 스테이크하우스</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'그릴 58 Grill 58','Grill 58','스테이크하우스·그릴','코타이 · MGM 코타이 (스펙터클 내)','월~금 18:00~23:00 / 토·일 12:00~15:00, 18:00~23:00','없음 (매일 영업)','예약 권장','히말라야 핑크솔트 숙성실 드라이에이징 · 바 58 · 데판야키 58 · Wine Spectator 수상','+853 8806 2318','드라이에이징 스테이크, 참치 타르타르 토스트, 시푸드 플래터, 데판야키','MOP 500 이상','https://maps.app.goo.gl/wcSJjP5ueBwUbU7h8','https://www.mgm.mo/ko/dining/mgm-cotai/grill-58','드레스코드 스마트 엘레강스. 데판야키 카운터는 별도 운영(화~일 저녁)')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">🥩 드라이에이징</span><span class="cat-badge">🍷 Wine Spectator 수상</span><span class="reserve-badge">★ 예약 권장</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · MGM 코타이 스펙터클</span><span class="meta-item">🕐 월~금 18:00~23:00</span><span class="meta-item">🕐 토·일 12:00~15:00 / 18:00~23:00</span><span class="meta-item">📅 매일 영업</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85388062318">📞 +853 8806 2318</a><a class="contact-btn menu-link" href="https://www.mgm.mo/ko/dining/mgm-cotai/grill-58" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">드라이에이징 스테이크</span><span class="menu-pill highlight">참치 타르타르 토스트</span><span class="menu-pill">시푸드 플래터</span><span class="menu-pill">데판야키</span></div>
+    <p class="card-note">드레스코드: 스마트 엘레강스</p>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 500 이상</div><a class="map-link" href="https://maps.app.goo.gl/wcSJjP5ueBwUbU7h8" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- SW 스테이크하우스 SW Steakhouse -->
+  <div class="restaurant-card card-western fade-in" id="card-sw">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>SW 스테이크하우스 SW Steakhouse</h3><div class="eng">SW Steakhouse · 윈 팰리스 · 아메리칸 서프 앤 터프</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'SW 스테이크하우스 SW Steakhouse','SW Steakhouse','스테이크하우스','코타이 · 윈 팰리스 1층','수~월 17:30~23:00','화요일 휴무','예약 권장','미슐랭 셀렉티드 2026 · 포브스 5스타 · 블랙펄 1다이아몬드 · 30분마다 3D 카바레 쇼','+853 8889 3663','드라이에이징 스테이크, 와규 뉴욕 스트립, 시푸드 타워, 랍스터','MOP 900~1,000','https://maps.app.goo.gl/KGyus9qyXdtXwU5w6','https://www.wynnresortsmacau.com/ko/wynn-palace/dining/sw-steakhouse?utm_source=googlemap&amp;utm_medium=referral','남성 긴바지 필수 · 민소매·오픈토 신발·모자 불가. 5세 이상 입장(프라이빗룸은 연령 제한 없음)')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="michelin-badge">🏅 미슐랭 셀렉티드</span><span class="michelin-badge">포브스 5스타</span><span class="reserve-badge">★ 예약 권장</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 윈 팰리스 1층</span><span class="meta-item">🕐 수~월 17:30~23:00</span><span class="meta-item">📅 화요일 휴무</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85388893663">📞 +853 8889 3663</a><a class="contact-btn menu-link" href="https://www.wynnresortsmacau.com/ko/wynn-palace/dining/sw-steakhouse?utm_source=googlemap&amp;utm_medium=referral" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">드라이에이징 스테이크</span><span class="menu-pill highlight">와규 뉴욕 스트립</span><span class="menu-pill">시푸드 타워</span><span class="menu-pill">랍스터</span></div>
+    <p class="card-note">남성 긴바지 필수 · 민소매·오픈토 신발·모자 불가 · 5세 이상 입장 · 식사 중 3D 카바레 쇼</p>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 900~1,000</div><a class="map-link" href="https://maps.app.goo.gl/KGyus9qyXdtXwU5w6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <div class="group-tip">💡 <strong>서양식 TIP</strong> — 치즈케이크 팩토리는 런더너 호텔 내 <strong>팀호완·첼시 가든과 같은 날 동선</strong>으로 묶기 최적! 폰타나·SW 스테이크하우스는 윈 팰리스, 그릴 58은 바로 옆 MGM 코타이라 스테이크 디너 동선으로 묶기 좋아요.</div>
+</section>
+
+<!-- ══ 한식 ══ -->
+<section class="section" id="korean">
+  <div class="section-header">
+    <div class="section-icon icon-korean">🇰🇷</div>
+    <div class="section-title"><span>Korean</span>한식</div>
+  </div>
+
+  <!-- 아리랑 -->
+  <div class="restaurant-card card-korean fade-in" id="card-arirang">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>아리랑 阿里郎 Arirang</h3><div class="eng">Arirang Korean Restaurant · 마카오 스타디움 인근</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'아리랑 阿里郎 Arirang','Arirang Korean Restaurant','한식 (고기구이)','타이파 · 마카오 스타디움 인근 (Rotunda do Estádio 45, 美景花園 3座 지상층)','11:00~익일 03:00','연중무휴','현장 방문','테이블 그릴 고기구이 · 반찬 리필 · 카드·현금 결제 가능','+853 2883 5562','고기구이, 김치전, 순두부찌개, 육개장','MOP 120~','https://maps.app.goo.gl/ZSXcGfH62J3HHjdz5','없음','타이파 주택가 한식당. 새벽 3시까지 영업해 늦은 저녁·야식으로도 좋음')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">테이블 그릴</span><span class="cat-badge">반찬 리필</span><span class="cat-badge">💳 카드·현금 가능</span><span class="cat-badge">🌙 새벽 3시까지</span></div>
+    <div class="card-meta"><span class="meta-item">📍 타이파 · 마카오 스타디움 인근</span><span class="meta-item">🕐 11:00~익일 03:00</span><span class="meta-item">📅 연중무휴</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328835562">📞 +853 2883 5562</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">고기구이</span><span class="menu-pill highlight">김치전</span><span class="menu-pill">순두부찌개</span><span class="menu-pill">육개장</span></div>
+    <p class="card-note">주소: Rotunda do Estádio 45, 美景花園 3座 지상층</p>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 120~</div><a class="map-link" href="https://maps.app.goo.gl/ZSXcGfH62J3HHjdz5" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <!-- 숯불집 -->
+  <div class="restaurant-card card-korean fade-in" id="card-sutbul">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>숯불집 炭火燒肉 Korean Charcoal House</h3><div class="eng">스튜디오 시티 1층 1007·1009호 · 정문 왼편</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'숯불집 炭火燒肉 Korean Charcoal House','Korean Charcoal House','한식 (숯불 고기구이)','코타이 · 스튜디오 시티 1층 1007·1009호 (정문 왼편)','매일 10:30~24:00','없음 (매일 영업)','현장 방문','숯불 양념 고기구이 · 세트 메뉴 · 카드·현금 결제 가능','+853 6330 3492','숯불 양념 고기구이, 고기 세트, 비빔밥','MOP 120~','https://maps.app.goo.gl/RgA5nb3Lp7561M4y8','없음','스튜디오 시티 정문 들어가서 왼편. 젠딤섬 스튜디오시티점과 같은 1층')">📋 프롬프트 복사</button>
+    </div>
+    <div class="badge-row"><span class="cat-badge">숯불구이</span><span class="cat-badge">세트 메뉴</span><span class="cat-badge">💳 카드·현금 가능</span></div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 스튜디오 시티 1층 1007·1009호</span><span class="meta-item">🕐 매일 10:30~24:00</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85363303492">📞 +853 6330 3492</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">숯불 양념 고기구이</span><span class="menu-pill highlight">고기 세트</span><span class="menu-pill">비빔밥</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 120~</div><a class="map-link" href="https://maps.app.goo.gl/RgA5nb3Lp7561M4y8" target="_blank">🗺 지도 보기</a></div>
+  </div>
+  <div class="group-tip">💡 <strong>한식 TIP</strong> — 숯불집은 스튜디오 시티 1층 정문 왼편이라 젠딤섬 스튜디오시티점과 같은 층. 아리랑은 새벽 3시까지 영업해 늦은 시간에도 갈 수 있어요. 두 곳 모두 카드·현금 결제 가능!</div>
+</section>
+
+<!-- ══ 푸드코트 ══ -->
+<section class="section" id="foodcourt">
+  <div class="section-header">
+    <div class="section-icon icon-foodcourt">🏮</div>
+    <div class="section-title"><span>Food Court &amp; Iron Plate</span>푸드코트 · 철판</div>
+  </div>
+
+  <!-- 27 브로드웨이 -->
+  <div class="restaurant-card card-foodcourt fade-in" id="card-27">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">27</div>
+        <div class="card-name"><h3>브로드웨이 푸드스트리트</h3><div class="eng">百老匯美食街 · 마카오 최초 호커 스타일 · 라이브 밴드 공연</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'브로드웨이 푸드스트리트','Broadway Food Street','푸드코트 (호커 스타일)','코타이 · 브로드웨이 호텔','12:00~22:00~24:00 (매장마다 상이)','없음','자유 방문','마카오 최초 호커 스타일 · 라이브 밴드 공연','+853 8883 3338','40개 이상 점포 - 딤섬, 거위, 베트남 쌀국수, 칠리크랩, 허브티','MOP 80~','https://maps.app.goo.gl/maPTKLj33giei9fK6','https://www.broadwaymacau.com.mo/broadway-food-street/','저녁 7시 이후 라이브 공연과 함께 분위기 최고조. 갤럭시 마카오 숙박 여행객에게 매일 저녁 추천')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 코타이 · 브로드웨이 호텔</span><span class="meta-item">🕐 12:00~22:00~24:00 (매장마다 상이)</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85388833338">📞 +853 8883 3338</a><a class="contact-btn menu-link" href="https://www.broadwaymacau.com.mo/broadway-food-street/" target="_blank">🍽 메뉴 보기</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">40개 이상 점포</span><span class="menu-pill">딤섬 · 거위</span><span class="menu-pill">베트남 쌀국수</span><span class="menu-pill">칠리크랩</span><span class="menu-pill">허브티</span></div>
+    <p class="card-note">저녁 7시 이후 라이브 공연과 함께 분위기 최고조!</p>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 80~</div><a class="map-link" href="https://maps.app.goo.gl/maPTKLj33giei9fK6" target="_blank">🗺 지도 보기</a></div>
+  </div>
+
+  <div class="group-tip">💡 <strong>푸드코트 TIP</strong> — 브로드웨이 푸드스트리트는 <strong>저녁 7시 이후 라이브 공연</strong>과 함께 분위기 최고조. 갤럭시 마카오 숙박 여행객은 매일 저녁 방문해도 매번 다른 음식!</div>
+</section>
+
+<!-- ══ 미슐랭 ══ -->
+<section class="section" id="michelin">
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(135deg,#FDE68A,#C9922A);">⭐</div>
+    <div class="section-title"><span>Michelin Guide Macau 2026</span>미슐랭 가이드 식당</div>
+  </div>
+
+  <!-- 미슐랭 테이블 -->
+  <p style="font-size:12px;color:var(--muted-text);margin:-14px 0 14px;">기준: 미쉐린 가이드 홍콩·마카오 2026 (2026년 3월 19일 발표)</p>
+  <div class="area-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>등급</th>
+          <th>식당명</th>
+          <th>카테고리</th>
+          <th>위치</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span style="color:#E8B84B;font-weight:700;">⭐⭐⭐ 3스타</span></td>
+          <td><strong>제이드 드래곤 譽瓏軒</strong><br><small style="color:var(--muted-text)">Black Pearl 3 Diamond</small></td>
+          <td>광동식</td>
+          <td>코타이 · 시티 오브 드림즈</td>
+        </tr>
+        <tr>
+          <td><span style="color:#E8B84B;font-weight:700;">⭐⭐ 2스타</span></td>
+          <td><strong>디에잇 The Eight</strong><br><small style="color:var(--muted-text)">Black Pearl 2 Diamond · La Liste 54위</small></td>
+          <td>광동식</td>
+          <td>반도 · 그랜드 리스보아</td>
+        </tr>
+        <tr>
+          <td><span style="color:#E8B84B;font-weight:700;">⭐⭐ 2스타</span></td>
+          <td><strong>윙레이 永利軒</strong><br><small style="color:var(--muted-text)">+ 포브스 5스타</small></td>
+          <td>광동식</td>
+          <td>반도 · 윈 마카오</td>
+        </tr>
+        <tr>
+          <td><span style="color:#E8B84B;font-weight:700;">⭐ 1스타</span></td>
+          <td><strong>지얏힌 紫逸軒</strong><br><small style="color:var(--muted-text)">17년 연속</small></td>
+          <td>광동식</td>
+          <td>코타이 · 포시즌스</td>
+        </tr>
+        <tr>
+          <td><span style="color:#E8B84B;font-weight:700;">⭐ 1스타</span></td>
+          <td><strong>라이힌 麗軒</strong><br><small style="color:var(--muted-text)">리츠칼튼 51층</small></td>
+          <td>광동식</td>
+          <td>코타이 · 갤럭시 마카오</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">🍽 빕구르망</span></td>
+          <td><strong>아 로르차 A Lorcha</strong><br><small style="color:var(--muted-text)">2026 셀렉티드 → 빕구르망 승격</small></td>
+          <td>포르투갈식</td>
+          <td>반도 · 아마 사원</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">🍽 빕구르망</span></td>
+          <td><strong>리토랄 海灣餐廳</strong><br><small style="color:var(--muted-text)">타이파점</small></td>
+          <td>포르투갈식</td>
+          <td>타이파</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">🏅 등재</span></td>
+          <td><strong>알베르게 1601 ALBERGUE 1601</strong></td>
+          <td>포르투갈식</td>
+          <td>반도 · 성 라자루스 교구</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">🏅 등재</span></td>
+          <td><strong>SW 스테이크하우스</strong><br><small style="color:var(--muted-text)">포브스 5스타</small></td>
+          <td>스테이크</td>
+          <td>코타이 · 윈 팰리스</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">🏅 등재</span></td>
+          <td><strong>세이 키 카페 世記咖啡</strong></td>
+          <td>카페</td>
+          <td>타이파 빌리지</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">🏅 스트리트</span><br><small style="color:var(--muted-text)">4년 연속</small></td>
+          <td><strong>레몬 첼로 LemonCello</strong></td>
+          <td>젤라또</td>
+          <td>타이파 빌리지</td>
+        </tr>
+        <tr>
+          <td><span style="color:#C9922A;font-weight:700;">참고</span></td>
+          <td><strong>팀호완 添好運</strong><br><small style="color:var(--muted-text)">홍콩 삼수이포 본점 빕구르망 (마카오 지점 아님)</small></td>
+          <td>딤섬</td>
+          <td>코타이 · 런더너</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 미슐랭 카드 바로가기 -->
+  <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;">
+    <button class="nav-tab" onclick="goTo('cantonese')" style="background:rgba(201,146,42,0.12);color:var(--dark-brown);border:1.5px solid rgba(201,146,42,0.35);border-radius:20px;font-size:12px;padding:8px 16px;">🍜 광동식 스타 5곳 →</button>
+    <button class="nav-tab" onclick="goTo('portuguese')" style="background:rgba(201,146,42,0.12);color:var(--dark-brown);border:1.5px solid rgba(201,146,42,0.35);border-radius:20px;font-size:12px;padding:8px 16px;">🇵🇹 아 로르차 · 리토랄 →</button>
+    <button class="nav-tab" onclick="goTo('cafe')" style="background:rgba(201,146,42,0.12);color:var(--dark-brown);border:1.5px solid rgba(201,146,42,0.35);border-radius:20px;font-size:12px;padding:8px 16px;">☕ 세이 키 카페 →</button>
+    <button class="nav-tab" onclick="goTo('bakery')" style="background:rgba(201,146,42,0.12);color:var(--dark-brown);border:1.5px solid rgba(201,146,42,0.35);border-radius:20px;font-size:12px;padding:8px 16px;">🥐 레몬 첼로 →</button>
+    <button class="nav-tab" onclick="goTo('dimsum')" style="background:rgba(201,146,42,0.12);color:var(--dark-brown);border:1.5px solid rgba(201,146,42,0.35);border-radius:20px;font-size:12px;padding:8px 16px;">🥟 팀호완 →</button>
+  </div>
+</section>
+
+<!-- ══ 지역별 정리 ══ -->
+<section class="section" id="areamap">
+  <div class="section-header">
+    <div class="section-icon icon-map">📍</div>
+    <div class="section-title"><span>Area Guide</span>지역별 추천 정리</div>
+  </div>
+  <p class="area-hint">👆 식당 이름을 누르면 해당 카드로 이동해요</p>
+  <div class="area-table-wrap">
+    <table>
+      <thead><tr><th>지역</th><th>추천 식당</th></tr></thead>
+      <tbody>
+        <tr><td>반도<br><small style="font-weight:400;color:var(--muted-text)">세나도 광장 일대</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-03')">웡치케이</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('egg-margaret')">마가렛 카페 이 나타</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-19')">이순 밀크</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-portucau')">포르투코 Portucau</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-15')">카오카오찬</button></td></tr>
+        <tr><td>반도<br><small style="font-weight:400;color:var(--muted-text)">성 라자루스 교구</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-albergue')">알베르게 1601</button></td></tr>
+        <tr><td>반도<br><small style="font-weight:400;color:var(--muted-text)">그랜드 리스보아·윈 마카오</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-theeight')">디에잇 (그랜드 리스보아 2층)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-01')">윙레이 (윈 마카오 G층)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-17')">쑤완라펀 반도점 (北京街)</button></td></tr>
+        <tr><td>반도<br><small style="font-weight:400;color:var(--muted-text)">아마 사원</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-06')">아 로르차 A Lorcha</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-20')">라 팔로마</button></td></tr>
+        <tr><td>반도<br><small style="font-weight:400;color:var(--muted-text)">야식</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-05')">영도죽</button></td></tr>
+        <tr><td>타이파<br><small style="font-weight:400;color:var(--muted-text)">빌리지</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-18')">세이 키 카페</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-23')">레몬 첼로</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-22')">로드 스토우 타이파점</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-07')">리토랄</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-09')">카사 머퀴스타</button></td></tr>
+        <tr><td>타이파<br><small style="font-weight:400;color:var(--muted-text)">쇼핑몰·주택가</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-04')">신무이 (花城)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-14')">젠딤섬 노바몰점</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-16')">쑤완라펀 타이파점</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-arirang')">아리랑 (한식)</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">베네시안·런더너</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-10')">팀호완</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-11')">첼시 가든</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-12')">북방관</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-26')">치즈케이크 팩토리</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-hdl-venetian')">하이디라오 (베네시안 1층)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-hdl-londoner')">하이디라오 (런더너 1층)</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">파리지앵</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-13')">크리스탈 제이드</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">포시즌스</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-02')">지얏힌</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">시티 오브 드림즈</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-jadedragon')">제이드 드래곤 (2층)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-zhen-cod')">젠딤섬 (2층 SOHO)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-beijingkitchen')">베이징 키친 (그랜드 하얏트 1층)</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">스튜디오 시티</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-zhen-sc')">젠딤섬 (1층 1011호)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-sutbul')">숯불집 (1층 1007·1009호)</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">갤럭시 마카오</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-laiheen')">라이힌 (리츠칼튼 51층)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-gaga')">gaga</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-chabei')">차베이 Cha Bei</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">MGM 코타이</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-grill58')">그릴 58</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">브로드웨이</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-27')">브로드웨이 푸드스트리트</button></td></tr>
+        <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">윈 팰리스</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-fontana')">폰타나</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-sw')">SW 스테이크하우스</button></td></tr>
+        <tr><td>콜로안</td><td><button type="button" class="area-link" onclick="jumpCard('egg-lord')">로드 스토우 본점</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-21')">로드스토우즈 카페</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-08')">미라마 (학사 해변)</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warning-box">⚠️ 영업시간 및 가격은 현지 사정에 따라 변동될 수 있으므로, 방문 전 공식 홈페이지 또는 구글맵에서 최신 정보를 반드시 확인하시기 바랍니다.</div>
+</section>
+
+<!-- ══ 꿀팁 ══ -->
+<section class="section" id="tips" style="padding-bottom:64px;">
+  <div class="section-header">
+    <div class="section-icon icon-tip">💡</div>
+    <div class="section-title"><span>Local Tips</span>꼭 알아야 할 현지 꿀팁</div>
+  </div>
+  <div class="tips-grid">
+    <div class="tip-card fade-in"><div class="tip-num">1</div><div class="tip-content"><h4>에그타르트는 오전 or 오픈 직후에</h4><p>갓 구워진 따뜻한 에그타르트와 식은 것은 맛 차이가 크다. 오전 10시~오후 2시 방문이 가장 신선. 마가렛은 오후 3~4시 이후 품절 주의!</p></div></div>
+    <div class="tip-card fade-in"><div class="tip-num">2</div><div class="tip-content"><h4>레스토랑 브레이크 타임 필수 체크</h4><p>대부분의 레스토랑은 오후 2:30~6:00 브레이크 타임 운영. A Lorcha는 화요일, 세이 키 카페는 월요일 정기 휴무!</p></div></div>
+    <div class="tip-card fade-in"><div class="tip-num">3</div><div class="tip-content"><h4>로컬 식당은 현금을 준비하라</h4><p>대형 레스토랑은 카드·페이앱 가능하지만 길거리 식당은 현금만 받는 경우가 많다. MOP가 없으면 HKD도 대부분 1:1로 받아준다.</p></div></div>
+    <div class="tip-card fade-in"><div class="tip-num">4</div><div class="tip-content"><h4>세나도~성 바울 골목 육포 거리를 놓치지 마라</h4><p>세나도 광장 → 성 바울 성당 유적 골목이 육포 거리. 대부분 시식 가능하니 맛보고 구매. 기념품·선물로도 최고!</p></div></div>
+    <div class="tip-card fade-in"><div class="tip-num">5</div><div class="tip-content"><h4>호텔 무료 셔틀버스를 적극 이용하라</h4><p>갤럭시·베네시안·런더너 등 코타이 호텔들은 공항·페리터미널 무료 셔틀 운영. 택시보다 훨씬 경제적. 맛집 동선 짤 때 셔틀 시간표 필수!</p></div></div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<!-- 유의사항 -->
+<div style="background:#1C1008;padding:24px 20px;text-align:center;">
+  <p style="font-family:'Noto Sans KR',sans-serif;font-size:12px;color:rgba(253,246,237,0.5);line-height:1.9;max-width:620px;margin:0 auto;">
+    ※ <strong style="color:rgba(253,246,237,0.75);">[유의사항]</strong> 본 프로그램에 대한 모든 지식 재산권은 <strong style="color:#F0C0A0;">Irene</strong>에게 있으며,<br>
+    타인에게 무단으로 링크를 공유하거나 상업적으로 배포하는 행위는 엄격히 금지합니다.
+  </p>
+</div>
+
+<script>
+/* ── 검색 함수 ── */
+var RESTAURANTS = [
+  {id:'michelin', names:['미슐랭','michelin','스타','3스타','2스타','1스타','미쉐린','빕구르망','bib gourmand']},
+  {id:'card-jadedragon', names:['제이드드래곤','제이드 드래곤','jade dragon','譽瓏軒','시티오브드림즈','시티 오브 드림즈','city of dreams','3스타']},
+  {id:'card-laiheen', names:['라이힌','lai heen','麗軒','리츠칼튼','리츠 칼튼','ritz-carlton','ritz carlton','갤럭시']},
+  {id:'card-theeight', names:['디에잇','the eight','그랜드리스보아','그랜드 리스보아','금붕어 교자','2스타','미슐랭 2스타']},
+  {id:'card-beijingkitchen', names:['베이징키친','베이징 키친','베이징키','베이 징','beijing kitchen','beijing','滿堂彩','북경오리','베이징덕','장작','그랜드하얏트','grand hyatt','하얏트','hyatt','北京']},
+  {id:'card-fontana', names:['폰타나','fontana','이탈리아','윈팰리스','윈 팰리스','wynn palace','파스타','리소토','조식','조식뷔페','조식 뷔페','뷔페']},
+  {id:'card-gaga', names:['가가','gaga','갤럭시카페','웰니스','all-day chill','세라두라케이크','새우페이스트','갤럭시 카페']},
+  {id:'card-albergue', names:['알베르게','albergue','1601','성라자루스','라자루스','통돼지','정어리','문어구이','포르투갈 정통']},
+  {id:'card-portucau', names:['포르투코','portucau','澳葡坊','타파스','페티스코스','포르투갈 타파스','라이브밴드']},
+  {id:'card-chabei', names:['차베이','chabei','cha bei','수플레팬케이크','수플레 팬케이크','아보카도번','아보카도 번','갤럭시 카페']},
+  {id:'card-01', names:['윙레이','영리헌','wing lei','永利軒','미슐랭','2스타']},
+  {id:'card-02', names:['지얏힌','zi yat heen','紫逸軒','포시즌스','미슐랭','1스타']},
+  {id:'card-03', names:['웡치케이','wong chi kei','黃枝記','완탕면','세나도']},
+  {id:'card-04', names:['신무이','新武二','굴소면','굴 소면','타이파 면']},
+  {id:'card-05', names:['영도죽','贏到粥','yeng dou jok','야식','죽']},
+  {id:'card-06', names:['a lorcha','로르차','船屋','아마사원','아마 사원','포르투갈','미슐랭','빕구르망']},
+  {id:'card-07', names:['리토랄','litoral','海灣','아프리칸 치킨','커리 크랩','빕구르망','미슐랭']},
+  {id:'card-08', names:['미라마','miramar','美麗華','학사해변','학사 해변','오션뷰']},
+  {id:'card-09', names:['카사머퀴스타','카사 머퀴스타','casa maquista','土生公館','macanese','미치','minchi','주택박물관','타이파']},
+  {id:'card-10', names:['팀호완','tim ho wan','添好運','딤섬','런더너','미슐랭','빕구르망']},
+  {id:'card-11', names:['첼시가든','첼시 가든','chelsea garden','복합 다이닝']},
+  {id:'card-12', names:['북방관','north','北方館','도삭면','탄탄면','베네시안']},
+  {id:'card-13', names:['크리스탈제이드','크리스탈 제이드','crystal jade','翡翠','샤오롱바오','파리지앵']},
+  {id:'card-14', names:['젠딤섬','젠 딤섬','진점심','真點心','zhen dim sum','노바몰','nova mall','새우만두','하가우','샤오마이']},
+  {id:'card-hdl-venetian', names:['하이디라오','haidilao','海底撈','海底捞','훠궈','hot pot','핫팟','베네시안','venetian']},
+  {id:'card-hdl-londoner', names:['하이디라오','haidilao','海底撈','海底捞','훠궈','hot pot','핫팟','런더너','londoner']},
+  {id:'card-grill58', names:['그릴58','그릴 58','grill 58','grill58','mgm','엠지엠','스테이크','steak','데판야키']},
+  {id:'card-sw', names:['sw','sw스테이크하우스','sw 스테이크하우스','sw steakhouse','스테이크하우스','스테이크','steak','윈팰리스','윈 팰리스','wynn palace']},
+  {id:'card-arirang', names:['아리랑','arirang','阿里郎','阿里朗','한식','한국','korean','고기구이','삼겹살','김치전','순두부']},
+  {id:'card-sutbul', names:['숯불집','숯불','炭火燒肉','korean charcoal house','charcoal','한식','한국','korean','고기구이','스튜디오시티','스튜디오 시티']},
+  {id:'card-zhen-sc', names:['젠딤섬','젠 딤섬','真點心','zhen dim sum','스튜디오시티','스튜디오 시티','studio city','새우만두','샤오마이']},
+  {id:'card-zhen-cod', names:['젠딤섬','젠 딤섬','真點心','zhen dim sum','시티오브드림즈','시티 오브 드림즈','city of dreams','soho','새우만두','샤오마이']},
+  {id:'card-15', names:['카오카오찬','餃餃鎮','dumpling town','dumplings town','만두','마라만두']},
+  {id:'card-16', names:['쑤완라펀','타이파점','酸辣粉','산라펀','당면']},
+  {id:'card-17', names:['쑤완라펀','반도점','酸辣粉','산라펀','당면','신구안','nape','북경가']},
+  {id:'card-18', names:['세이키카페','세이 키 카페','世記咖啡','sek ki','밀크티','돼지갈비번','돼지갈비 번','미슐랭']},
+  {id:'card-19', names:['이순밀크','이순 밀크','義順','yee shun','밀크푸딩','밀크 푸딩','푸딩']},
+  {id:'card-20', names:['la paloma','라팔로마','라 팔로마','芭朗瑪','애프터눈티','애프터눈 티']},
+  {id:'card-21', names:['로드스토우즈카페','로드스토우즈 카페','lord stow','安德魯咖啡','콜로안']},
+  {id:'card-22', names:['로드스토우','lord stow','安德魯餅店','에그타르트','egg tart','타이파점']},
+  {id:'card-23', names:['레몬첼로','레몬 첼로','lemoncello','gelato','젤라또','미슐랭','스트리트']},
+  {id:'card-26', names:['cheesecake factory','치즈케이크','芝樂坊','버거','파스타']},
+  {id:'card-27', names:['브로드웨이','broadway','百老匯','호커','갤럭시']},
+  {id:'egg-lord', names:['로드스토우','lord stow','本店','본점','에그타르트','egg tart','콜로안']},
+  {id:'egg-margaret', names:['마가렛','margaret','瑪嘉烈','에그타르트','egg tart']}
+];
+
+function doSearch(val) {
+  var q = val.trim().toLowerCase();
+  var clearBtn = document.getElementById('searchClear');
+  var msg = document.getElementById('searchMsg');
+
+  clearBtn.classList.toggle('visible', q.length > 0);
+
+  if (!q) {
+    msg.innerHTML = '';
+    return;
+  }
+
+  /* 공백·기호를 무시하고 비교 → "제이드 드래곤 譽瓏軒"처럼 이름 전체를 붙여넣어도 검색됨 */
+  var qn = normName(q);
+  var scored = [];
+  RESTAURANTS.forEach(function(r, idx) {
+    var el = document.getElementById(r.id);
+    var h3 = el ? el.querySelector('h3') : null;
+    var eng = el ? el.querySelector('.eng') : null;
+    var full = normName((h3 ? h3.textContent : '') + ' ' + (eng ? eng.textContent : ''));
+    var score = 0;
+    if (h3 && normName(h3.textContent) === qn) score = 4;                 // 이름 전체 일치
+    else if (qn && full.indexOf(qn) !== -1) score = 3;                    // 카드 이름·영문명 일부
+    else if (r.names.some(function(n){ return normName(n).indexOf(qn) !== -1; })) score = 2; // 기존 검색어
+    else if (r.names.some(function(n){ var nn = normName(n); return nn.length >= 2 && qn.indexOf(nn) !== -1; })) score = 1; // 붙여넣은 긴 문장 안에 검색어 포함
+    if (score) scored.push({r: r, s: score, i: idx});
+  });
+  scored.sort(function(a, b){ return b.s - a.s || a.i - b.i; });
+  var matched = scored.map(function(x){ return x.r; });
+
+  if (matched.length === 0) {
+    msg.innerHTML = '<strong>"' + val + '"</strong> 에 해당하는 식당이 없습니다.';
+    return;
+  }
+
+  // 첫 번째 매칭 카드로 스크롤
+  var first = matched[0];
+  var el = document.getElementById(first.id);
+  if (el) {
+    // sticky 요소(nav + searchWrap) 실제 높이 동적 계산
+    var navEl = document.querySelector('.nav-tabs');
+    var swEl  = document.querySelector('.search-wrap');
+    var stickyH = (navEl ? navEl.offsetHeight : 44)
+                + (swEl  ? swEl.offsetHeight  : 70)
+                + 16; // 여유 margin
+
+    // requestAnimationFrame으로 렌더 완료 후 위치 계산
+    requestAnimationFrame(function() {
+      var top = el.getBoundingClientRect().top + window.pageYOffset - stickyH;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    });
+
+    // 하이라이트 효과
+    el.classList.add('search-match');
+    setTimeout(function(){ el.classList.remove('search-match'); }, 2500);
+  }
+
+  msg.innerHTML = '<strong>"' + val + '"</strong> — ' + matched.length + '개 매칭 · 첫 번째 카드로 이동';
+}
+
+function normName(t) {
+  return String(t).toLowerCase().replace(/[\s·—\-–_.,()（）'"]/g, '');
+}
+
+function fixStickyTop() {
+  var nav = document.querySelector('.nav-tabs');
+  var sw = document.querySelector('.search-wrap');
+  if (nav && sw) sw.style.top = nav.offsetHeight + 'px';
+}
+window.addEventListener('load', fixStickyTop);
+window.addEventListener('resize', fixStickyTop);
+fixStickyTop();
+
+function jumpCard(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var navEl = document.querySelector('.nav-tabs');
+  var swEl  = document.querySelector('.search-wrap');
+  var stickyH = (navEl ? navEl.offsetHeight : 44) + (swEl ? swEl.offsetHeight : 70) + 16;
+  var top = el.getBoundingClientRect().top + window.pageYOffset - stickyH;
+  window.scrollTo({ top: top, behavior: 'smooth' });
+  var hl = el.classList.contains('restaurant-card') ? el : (el.closest('.restaurant-card') || el);
+  hl.classList.add('search-match');
+  setTimeout(function(){ hl.classList.remove('search-match'); }, 2500);
+}
+
+function clearSearch() {
+  var input = document.getElementById('searchInput');
+  input.value = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  document.getElementById('searchMsg').innerHTML = '';
+  input.focus();
+}
+
+/* ── 프롬프트 복사 함수 ── */
+/* ── 찾아가는 길 (카드 id별로 입력 · 없으면 "구글지도 참고") ── */
+var DIRECTIONS = {
+  'card-01': '윈 마카오 G층(지상층) · 로툰다(번영의 나무·행운의 용 쇼)와 명품 쇼핑가 Wynn Esplanade 근처, 중국식 원형 문이 입구',
+  'card-02': '포시즌스 호텔 마카오 안 (베네시안·파리지앵 인근) · 호텔 로비 직원에게 문의하면 안내',
+  'card-03': '세나도 광장 안 (Largo do Senado 17번지)',
+  'card-04': '타이파 Rua de Coimbra(哥英布拉街) 105번지 · 花城 주택가',
+  'card-05': '반도 Rua da Escola Náutica 104-124번지(風順新邨) · 주변에 택시가 적어 귀가 시 미리 호출 권장',
+  'card-theeight': '그랜드 리스보아 호텔 2층 (Grand Lisboa Macau 2/F)',
+  'card-jadedragon': '시티 오브 드림즈 2층 West Side',
+  'card-laiheen': '갤럭시 마카오 단지 내 리츠칼튼 마카오 51층 · 호텔 엘리베이터 이용',
+  'card-06': '아마 사원에서 도보 1분',
+  'card-07': '타이파 빌리지 Rua do Regedor 53-57번지 지상층',
+  'card-08': '콜로안 학사 해변 북동쪽 끝 (Zona Nordeste da Praia Hac-Sa) · 해변 바로 앞',
+  'card-09': '타이파 주택 박물관(龍環葡韻, Taipa Houses) 건물 안 · 타이파 빌리지에서 도보 이동',
+  'card-albergue': '성 라자루스 성당 인근 Calçada da Igreja de São Lázaro 8번지 · 세나도 광장에서 도보 10분 내외',
+  'card-portucau': '세나도 광장 옆 Avenida de Almeida Ribeiro에서 Travessa do Paço 골목으로 진입',
+  'card-10': '런더너 마카오 쇼핑센터 1층 1050호',
+  'card-11': '런더너 마카오 그랜드 1층 (Londoner Grand Level 1)',
+  'card-12': '베네시안 마카오 1층 1015호 · 카지노 플로어 쪽 (운하 쇼핑몰 쪽 아님)',
+  'card-13': '파리지앵 마카오 1층 3122호 (Shoppes at Parisian)',
+  'card-14': '타이파 노바몰(Nova Mall) 2층 224-225호',
+  'card-zhen-sc': '스튜디오 시티 1층 1011호 (숯불집과 같은 층)',
+  'card-zhen-cod': '시티 오브 드림즈 2층 SOHO 식당가 남쪽 구역',
+  'card-15': '세나도 광장 인근 골목 Calçada das Verdades 1번지 · 성 도미니크 성당 근처',
+  'card-beijingkitchen': '그랜드 하얏트 마카오(시티 오브 드림즈 단지) 1층',
+  'card-16': '타이파 Av. Dr. Sun Yat Sen 638번지',
+  'card-17': '新口岸(NAPE) 北京街(Rua de Pequim) 183번지 지상층 K호 · 그랜드 리스보아·윈 마카오가 있는 지역',
+  'card-hdl-venetian': '베네시안 마카오 1층 1036A호',
+  'card-hdl-londoner': '런더너 마카오 쇼핑센터 1층 1048A호',
+  'card-19': '세나도 광장에서 新馬路(Avenida de Almeida Ribeiro)를 따라 도보 3분',
+  'card-20': '아마 사원 인근 상 티아구 요새 호텔(Pousada de São Tiago) 2층 · Av. da República',
+  'card-21': '콜로안 빌리지 · 로드 스토우 베이커리 본점 근처',
+  'egg-lord': '콜로안 빌리지 Rua do Tassara(戴紳禮街) 1번지 지상층',
+  'egg-margaret': '新馬路(Avenida de Almeida Ribeiro) 안쪽 지상층 아케이드 · Pátio do Comandante Mata e Oliveira 66번지',
+  'card-22': '타이파 빌리지 관야가(Rua do Cunha) 9번지 D호',
+  'card-23': '타이파 빌리지 Rua do Regedor 115번지 J호 (리토랄과 같은 거리)',
+  'card-gaga': '갤럭시 마카오 G층 G009A호',
+  'card-chabei': '갤럭시 마카오 1층 1047호',
+  'card-26': '런더너 마카오 쇼핑센터 2층 2203D&E호',
+  'card-fontana': '윈 팰리스 1층 · 분수 쇼(퍼포먼스 레이크)가 보이는 레스토랑',
+  'card-grill58': 'MGM 코타이 안 스펙터클(The Spectacle) 공간',
+  'card-sw': '윈 팰리스 1층',
+  'card-arirang': '타이파 마카오 스타디움 원형교차로(Rotunda do Estádio) 45번지 美景花園(Mei Keng Garden) 지상층',
+  'card-sutbul': '스튜디오 시티 정문으로 들어가 왼편, 1층 1007·1009호',
+  'card-27': '브로드웨이 마카오 호텔 안 야외 식당가 (갤럭시 마카오 옆)'
+};
+
+function cp(btn, name, eng, cat, loc, hours, closed, rsv, special, phone, menu, price, map, menuUrl, tip) {
+  var card = btn.closest('[id]');
+  var dir = (card && DIRECTIONS[card.id]) || '구글지도 참고';
+  var text = [
+    "아래 마카오 식당 정보로 카카오톡 전송용 HTML 카드를 만들어줘.",
+    "블로그 캡션 아님. 인스타그램 캡션 아님. 카드 형식만 만들어줘.",
+    "카드 맨 아래에 [안내문구]를 반드시 그대로 넣어줘.",
+    "",
+    "[식당명] " + name,
+    "[영문명] " + eng,
+    "[카테고리] " + cat,
+    "[위치] " + loc,
+    "[찾아가는 길] " + dir,
+    "[영업시간] " + hours,
+    "[휴무] " + closed,
+    "[예약] " + rsv,
+    "[특이사항] " + special,
+    "[전화번호] " + phone,
+    "[추천메뉴] " + menu,
+    "[1인당 예상가] " + price,
+    "[구글지도] " + map,
+    "[메뉴링크] " + menuUrl,
+    "[꿀팁] " + tip,
+    "[안내문구] 영업시간과 가격은 현지 사정에 따라 변경될 수 있습니다. 방문 전 확인을 권장합니다."
+  ].join("\n");
+
+  copyText(text, function(){ done(btn); });
+}
+
+/* ── 공용 복사 함수 (PC·안드로이드·아이폰·카톡 인앱 브라우저 대응) ── */
+function copyText(text, onOk) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(onOk).catch(function(){ legacyCopy(text, onOk); });
+  } else {
+    legacyCopy(text, onOk);
+  }
+}
+
+function legacyCopy(text, onOk) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.contentEditable = "true";
+  ta.style.position = "fixed";
+  ta.style.top = "0";
+  ta.style.left = "0";
+  ta.style.opacity = "0";
+  ta.style.fontSize = "16px"; /* iOS 확대 방지 */
+  document.body.appendChild(ta);
+  var ok = false;
+  try {
+    if (/ipad|iphone|ipod/i.test(navigator.userAgent)) {
+      var range = document.createRange();
+      range.selectNodeContents(ta);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      ta.setSelectionRange(0, text.length);
+    } else {
+      ta.focus();
+      ta.select();
+    }
+    ok = document.execCommand("copy");
+  } catch(e) { ok = false; }
+  document.body.removeChild(ta);
+  if (ok) { onOk(); }
+  else { window.prompt("자동 복사가 안 되는 환경입니다. 아래 내용을 길게 눌러 복사하세요.", text); }
+}
+
+function showToast(msg) {
+  var toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(function(){ toast.classList.remove("show"); }, 2200);
+}
+
+/* ── 매장 이름 복사 버튼 자동 추가 ── */
+document.querySelectorAll(".card-name h3, .egg-card h3").forEach(function(h){
+  var name = h.textContent.trim();
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "name-copy";
+  b.textContent = "📋 이름 복사";
+  b.onclick = function(){
+    copyText(name, function(){
+      b.textContent = "✅ 복사됨";
+      b.classList.add("done");
+      showToast("✅ " + name + " 복사 완료");
+      setTimeout(function(){ b.textContent = "📋 이름 복사"; b.classList.remove("done"); }, 1800);
+    });
+  };
+  /* 일반 카드: 프롬프트 복사 버튼과 한 묶음으로 배치 (모바일에선 이름 아래 한 줄) */
+  var card = h.closest(".restaurant-card");
+  var top = card ? card.querySelector(".card-top") : null;
+  var pbtn = top ? top.querySelector(":scope > .copy-btn") : null;
+  if (pbtn) {
+    var actions = document.createElement("div");
+    actions.className = "card-actions";
+    top.insertBefore(actions, pbtn);
+    actions.appendChild(pbtn);
+    actions.appendChild(b);
+    return;
+  }
+  /* 에그타르트 비교 카드 등 */
+  var wrap = h.parentNode;
+  var eng = wrap.querySelector(".eng");
+  var holder = document.createElement("div");
+  holder.appendChild(b);
+  if (eng && eng.parentNode === wrap) { wrap.insertBefore(holder, eng.nextSibling); }
+  else { h.insertAdjacentElement("afterend", holder); }
+});
+
+function done(btn) {
+  var orig = btn.innerHTML;
+  btn.innerHTML = "✅ 복사 완료!";
+  btn.classList.add("done");
+  var toast = document.getElementById("toast");
+  toast.textContent = "✅ 프롬프트 복사 완료!";
+  toast.classList.add("show");
+  setTimeout(function(){
+    btn.innerHTML = orig;
+    btn.classList.remove("done");
+    toast.classList.remove("show");
+  }, 2200);
+}
+
+/* ── 스크롤 함수 (외부링크 없음) ── */
+function goTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ── 네비 활성화 ── */
+var sections = document.querySelectorAll("section[id]");
+var tabs = document.querySelectorAll(".nav-tab");
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      tabs.forEach(function(t){ t.classList.remove("active"); });
+      var id = entry.target.id;
+      tabs.forEach(function(t){
+        if (t.getAttribute("onclick") && t.getAttribute("onclick").indexOf("'" + id + "'") !== -1) {
+          t.classList.add("active");
+        }
+      });
+    }
+  });
+}, { rootMargin: "-35% 0px -55% 0px" });
+sections.forEach(function(s){ observer.observe(s); });
+</script>
+</body>
+</html>
