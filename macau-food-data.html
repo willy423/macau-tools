@@ -268,7 +268,7 @@
 <div class="hero">
   <span class="hero-flag">🇲🇴</span>
   <h1><em>마카오 맛집</em> 데이터 자료</h1>
-  <p class="hero-sub">2026년 기준 · 반도 · 타이파 · 코타이 · 콜로안 · 총 44곳</p>
+  <p class="hero-sub">2026년 기준 · 반도 · 타이파 · 코타이 · 콜로안 · 총 45곳</p>
   <div class="hero-desc">
     각 식당 이름 옆 <strong>📋 프롬프트 복사</strong> 버튼 클릭<br>
     → AI에 붙여넣기 → <strong>"이 정보로 카카오톡 전송용 HTML 카드 만들어줘"</strong>
@@ -634,6 +634,21 @@
       <div class="price-tag">💰 1인당 예상가 / MOP 200~400</div>
       <a class="map-link" href="https://maps.app.goo.gl/DmmGWVutY59UuKFE8" target="_blank">🗺 지도 보기</a>
     </div>
+  </div>
+
+  <!-- 응아팀 Cafe Nga Tim -->
+  <div class="restaurant-card card-portuguese fade-in" id="card-ngatim">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-number">★</div>
+        <div class="card-name"><h3>응아팀 Cafe Nga Tim 雅憩花園餐廳</h3><div class="eng">Cafe Nga Tim · 콜로안 빌리지 성당 광장 오픈에어 식당</div></div>
+      </div>
+      <button class="copy-btn" onclick="cp(this,'응아팀 Cafe Nga Tim 雅憩花園餐廳','Cafe Nga Tim','매캐니즈·포르투갈식','콜로안 · 콜로안 빌리지 8 Rua Caetano (성 프란시스 자비에르 성당 광장)','매일 12:00~01:00','없음 (매일 영업)','확인 필요','1970년대 개업 · 성당 광장 회랑의 오픈에어 식당 · 중국·매캐니즈·포르투갈 요리','+853 2888 2086','소금후추 새우, 포르투갈식 농어 구이, 코코넛 바비큐 치킨, 새끼돼지 구이','MOP 200~300','https://maps.app.goo.gl/fUwbDX2rt28GELBv7','없음','로드 스토우 본점과 같은 콜로안 빌리지 동선으로 묶기')">📋 프롬프트 복사</button>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 콜로안 · 콜로안 빌리지 성당 광장</span><span class="meta-item">🕐 매일 12:00~01:00</span><span class="meta-item">📅 매일 영업</span></div>
+    <div class="contact-row"><a class="contact-btn phone" href="tel:+85328882086">📞 +853 2888 2086</a></div>
+    <div class="menu-pills"><span class="menu-pill highlight">소금후추 새우</span><span class="menu-pill highlight">포르투갈식 농어 구이</span><span class="menu-pill">코코넛 바비큐 치킨</span><span class="menu-pill">새끼돼지 구이</span></div>
+    <div class="card-bottom"><div class="price-tag">💰 1인당 예상가 / MOP 200~300</div><a class="map-link" href="https://maps.app.goo.gl/fUwbDX2rt28GELBv7" target="_blank">🗺 지도 보기</a></div>
   </div>
 
   <div class="group-tip">💡 <strong>포르투갈 TIP</strong> — A Lorcha·ALBERGUE 1601·포르투코는 반도 관광 동선에 포함 최적. 리토랄은 타이파 빌리지 쇼핑과 묶어 방문. <strong>미라마는 학사 해변 나들이와 세트로!</strong></div>
@@ -1366,7 +1381,7 @@
         <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">MGM 코타이</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-grill58')">그릴 58</button></td></tr>
         <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">브로드웨이</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-27')">브로드웨이 푸드스트리트</button></td></tr>
         <tr><td>코타이<br><small style="font-weight:400;color:var(--muted-text)">윈 팰리스</small></td><td><button type="button" class="area-link" onclick="jumpCard('card-fontana')">폰타나</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-sw')">SW 스테이크하우스</button></td></tr>
-        <tr><td>콜로안</td><td><button type="button" class="area-link" onclick="jumpCard('egg-lord')">로드 스토우 본점</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-21')">로드스토우즈 카페</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-08')">미라마 (학사 해변)</button></td></tr>
+        <tr><td>콜로안</td><td><button type="button" class="area-link" onclick="jumpCard('egg-lord')">로드 스토우 본점</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-21')">로드스토우즈 카페</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-08')">미라마 (학사 해변)</button><span class="area-sep">,</span> <button type="button" class="area-link" onclick="jumpCard('card-ngatim')">응아팀</button></td></tr>
       </tbody>
     </table>
   </div>
@@ -1410,6 +1425,7 @@ var RESTAURANTS = [
   {id:'card-gaga', names:['가가','gaga','갤럭시카페','웰니스','all-day chill','세라두라케이크','새우페이스트','갤럭시 카페']},
   {id:'card-albergue', names:['알베르게','albergue','1601','성라자루스','라자루스','통돼지','정어리','문어구이','포르투갈 정통']},
   {id:'card-portucau', names:['포르투코','portucau','澳葡坊','타파스','페티스코스','포르투갈 타파스','라이브밴드']},
+  {id:'card-ngatim', names:['응아팀','응아 팀','nga tim','cafe nga tim','ngatim','雅憩花園餐廳','雅憩花園','雅憩','콜로안빌리지','콜로안 빌리지','매캐니즈']},
   {id:'card-chabei', names:['차베이','chabei','cha bei','수플레팬케이크','수플레 팬케이크','아보카도번','아보카도 번','갤럭시 카페']},
   {id:'card-01', names:['윙레이','영리헌','wing lei','永利軒','미슐랭','2스타']},
   {id:'card-02', names:['지얏힌','zi yat heen','紫逸軒','포시즌스','미슐랭','1스타']},
@@ -1559,6 +1575,7 @@ var DIRECTIONS = {
   'card-09': '타이파 주택 박물관(龍環葡韻, Taipa Houses) 건물 안 · 타이파 빌리지에서 도보 이동',
   'card-albergue': '성 라자루스 성당 인근 Calçada da Igreja de São Lázaro 8번지 · 세나도 광장에서 도보 10분 내외',
   'card-portucau': '세나도 광장 옆 Avenida de Almeida Ribeiro에서 Travessa do Paço 골목으로 진입',
+  'card-ngatim': '콜로안 빌리지 성 프란시스 자비에르 성당 광장 · 성당 왼편 회랑 안 (8 Rua Caetano)',
   'card-10': '런더너 마카오 쇼핑센터 1층 1050호',
   'card-11': '런더너 마카오 그랜드 1층 (Londoner Grand Level 1)',
   'card-12': '베네시안 마카오 1층 1015호 · 카지노 플로어 쪽 (운하 쇼핑몰 쪽 아님)',
