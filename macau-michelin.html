@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>마카오 미쉐린 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --wine:#3B0A1F; --wine2:#6B1A35; --nav:#2E0818;
+  --rose:#F0C0A0; --gold:#c9a76a; --cream:#fdf8f0;
+  --ink:#2a1a1f; --muted:#7a6168; --line:#ead9c8;
+  --star:#b3122e; --bib:#c2410c; --sel:#6b4f2a;
+  --sans:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --serif:"Gowun Batang","Nanum Myeongjo",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:var(--sans);background:#f5ede2;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* 히어로 */
+.hero{background:linear-gradient(145deg,#3B0A1F,#6B1A35 60%,#4A1020);color:#fff;
+  padding:calc(env(safe-area-inset-top,0px) + 36px) 22px 30px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-40px;width:220px;height:220px;border-radius:50%;
+  border:1px solid rgba(240,192,160,.25);box-shadow:0 0 0 26px rgba(240,192,160,.06)}
+.hero-in{max-width:760px;margin:0 auto;position:relative;z-index:1}
+.hero .yr{font-family:var(--serif);color:var(--rose);font-size:15px;letter-spacing:.04em}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:34px;line-height:1.25;margin:4px 0 10px}
+.hero p{font-size:14px;color:#f3dccd;max-width:34em}
+.tally{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+.tally div{font-size:13px;color:#f3dccd}
+.tally b{display:block;font-family:var(--serif);font-size:26px;color:#fff;line-height:1.1}
+
+/* 고정 바 */
+.bar{position:sticky;top:0;z-index:20;background:var(--nav);padding:10px 14px 12px;
+  padding-top:calc(env(safe-area-inset-top,0px) + 10px);box-shadow:0 4px 14px rgba(46,8,24,.25)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--nav)}
+.bar-in{max-width:760px;margin:0 auto}
+.search{width:100%;border:1px solid #5a2236;background:#45102a;color:#fff;border-radius:10px;padding:11px 14px;font-size:16px}
+.search::placeholder{color:#c79a9f}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid #6a2a40;background:transparent;color:#e8c9bd;border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:var(--wine);font-weight:700}
+.row2{display:flex;gap:8px;margin-top:8px}
+.row2 select{flex:1;border:1px solid #6a2a40;background:#45102a;color:#f3dccd;border-radius:8px;padding:8px 10px;font-size:14px}
+
+/* 목록 */
+main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
+.status{font-size:13px;color:var(--muted);margin:2px 4px 14px}
+.group{margin:22px 4px 10px;display:flex;align-items:baseline;gap:10px}
+.group h2{font-family:var(--serif);font-size:20px;color:var(--wine)}
+.group span{font-size:13px;color:var(--muted)}
+.card{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;margin-bottom:10px;position:relative}
+.card.s3,.card.s2,.card.s1{border-left:4px solid var(--star)}
+.card.bib{border-left:4px solid var(--bib)}
+.card.sel{border-left:4px solid var(--gold)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:6px}
+.s3 .badge,.s2 .badge,.s1 .badge{background:#fbe4e7;color:var(--star)}
+.bib .badge{background:#fde9dc;color:var(--bib)}
+.sel .badge{background:#f3e8d2;color:var(--sel)}
+.meta{display:inline;font-size:12px;color:var(--muted);margin-left:6px}
+.name{font-family:var(--serif);font-size:20px;font-weight:700;margin:8px 0 0;line-height:1.35;color:#2a0d18}
+.sub{font-size:13px;color:var(--muted)}
+.info{margin-top:10px;font-size:14px;display:grid;gap:4px}
+.info div{display:flex;gap:8px}
+.info i{font-style:normal;flex:0 0 auto;width:1.4em;text-align:center}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;gap:4px;font-size:13px;text-decoration:none;border-radius:8px;padding:7px 11px;
+  border:1px solid var(--line);background:#fff;color:var(--ink)}
+.btn.copy{background:linear-gradient(135deg,#2D1B0E,#4A2E1A);color:var(--rose);border:0;margin-left:auto}
+.btn.copy.done{background:linear-gradient(135deg,#059669,#047857);color:#fff}
+.empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:14px}
+.err{background:#fff4f4;border:1px solid #f1c7c7;color:#8a1c1c;border-radius:12px;padding:14px;font-size:14px;margin:8px 0}
+.notice{font-size:12px;color:var(--muted);text-align:center;margin-top:28px;line-height:1.7}
+.copy-foot{background:var(--nav);color:#d9b7aa;text-align:center;font-size:12px;line-height:1.8;
+  padding:24px 20px calc(env(safe-area-inset-bottom,0px) + 28px)}
+.copy-foot .cr{color:var(--rose);margin-top:6px;letter-spacing:.02em}
+.top{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);width:44px;height:44px;border-radius:50%;
+  border:0;background:var(--wine2);color:var(--rose);font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,.25);display:none}
+.top.show{display:block}
+@media (prefers-reduced-motion:no-preference){.btn,.chip{transition:background .15s,color .15s}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="yr">MICHELIN GUIDE 2026</div>
+    <h1>마카오 미쉐린<br>식당 안내</h1>
+    <p>등급·지역·요리로 골라 보고, 고객에게 보낼 안내문을 바로 복사할 수 있어요.</p>
+    <div class="tally" id="tally"></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-in">
+    <input class="search" id="q" type="search" placeholder="식당 이름 검색 (한글·영어·중문)" aria-label="식당 이름 검색">
+    <div class="chips" id="gradeChips" role="group" aria-label="등급"></div>
+    <div class="row2">
+      <select id="region" aria-label="지역"><option value="">지역 전체</option></select>
+      <select id="cuisine" aria-label="요리 종류"><option value="">요리 종류 전체</option></select>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="status" id="status">식당 정보를 불러오는 중…</div>
+  <div id="list"></div>
+  <p class="notice">출처: MICHELIN Guide Hong Kong &amp; Macau 2026<br>가격·영업시간·등급은 변경될 수 있으니 방문 전 공식 채널에서 확인해 주세요.</p>
+</main>
+
+<footer class="copy-foot">
+  <p>Irene의 소중한 자료입니다.</p>
+  <p>본 콘텐츠의 모든 저작권은 Irene에게 있으며, 복제·배포·2차 가공을 금합니다.</p>
+  <p class="cr">Copyright © 2026 IRENE. All rights reserved.</p>
+</footer>
+
+<button class="top" id="topBtn" onclick="goTo('top')" aria-label="맨 위로">↑</button>
+
+<script>
+/* ===== 설정: 구글 시트 ===== */
+const SHEET_ID = "1j-jLgs3j9nXqqoZcQhAVcRKct-Qu-bSxNUNwH25IPrY";
+const SHEET_NAME = "마카오 미쉐린 2026";
+const CSV_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
+  "/gviz/tq?tqx=out:csv&headers=1&sheet=" + encodeURIComponent(SHEET_NAME);
+const CACHE_KEY = "macau-michelin-cache-v1";
+
+/* 등급 정의 (시트 '등급' 칸의 글자로 판별) */
+const GRADES = [
+  {key:"s3", label:"3스타", match:/3스타/, badge:"★★★ 3스타"},
+  {key:"s2", label:"2스타", match:/2스타/, badge:"★★ 2스타"},
+  {key:"s1", label:"1스타", match:/1스타/, badge:"★ 1스타"},
+  {key:"bib",label:"빕 구르망", match:/빕/, badge:"빕 구르망"},
+  {key:"sel",label:"셀렉티드", match:/셀렉티드/, badge:"셀렉티드"}
+];
+const REGIONS = ["반도","타이파","코타이","콜로안"];
+
+let DATA = [];
+const state = {q:"", grade:"", region:"", cuisine:""};
+
+/* ===== CSV 파서 ===== */
+function parseCSV(text){
+  const rows=[]; let row=[], cell="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
+      else cell+=c;
+    }else{
+      if(c==='"') q=true;
+      else if(c===','){row.push(cell);cell="";}
+      else if(c==='\n'){row.push(cell);rows.push(row);row=[];cell="";}
+      else if(c!=='\r') cell+=c;
+    }
+  }
+  if(cell!==""||row.length){row.push(cell);rows.push(row);}
+  return rows;
+}
+
+function toRecords(rows){
+  const head=rows[0].map(h=>h.trim());
+  const col=name=>head.findIndex(h=>h===name);
+  const idx={
+    grade:col("등급"), en:col("식당 영어이름"), zh:col("중문"), ko:col("한글"),
+    cuisine:col("요리 종류"), menu:col("메뉴"), loc:col("위치"),
+    home:col("홈링크"), map:col("구글맵 링크"), mich:col("미쉐린 가이드"), region:col("지역")
+  };
+  if(idx.grade<0||idx.en<0) throw new Error("시트 머리글(등급·식당 영어이름)을 찾지 못했습니다.");
+  const g=(r,k)=>idx[k]>=0?(r[idx[k]]||"").trim():"";
+  return rows.slice(1).map(r=>{
+    const gradeText=g(r,"grade");
+    const grade=GRADES.find(x=>x.match.test(gradeText));
+    return {
+      grade: grade?grade.key:"", en:g(r,"en"), zh:g(r,"zh"), ko:g(r,"ko"),
+      cuisine:g(r,"cuisine"), menu:g(r,"menu"), loc:g(r,"loc"),
+      home:cleanUrl(g(r,"home")), map:cleanUrl(g(r,"map")), mich:cleanUrl(g(r,"mich")), region:g(r,"region")
+    };
+  }).filter(d=>d.grade && (d.en||d.ko));
+}
+const cleanUrl=u=>/^https?:\/\//.test(u)?u:"";
+
+/* ===== 불러오기 ===== */
+async function load(){
+  const status=document.getElementById("status");
+  try{
+    const res=await fetch(CSV_URL,{cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const text=await res.text();
+    if(/^\s*</.test(text)) throw new Error("시트가 공개되어 있지 않습니다.");
+    DATA=toRecords(parseCSV(text));
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),d:DATA}));}catch(e){}
+    status.textContent="";
+  }catch(e){
+    let cached=null;
+    try{cached=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");}catch(_){}
+    if(cached&&cached.d&&cached.d.length){
+      DATA=cached.d;
+      status.textContent="최신 정보를 불러오지 못해 "+new Date(cached.t).toLocaleDateString("ko-KR")+"에 저장된 정보를 보여드려요.";
+    }else{
+      status.innerHTML="";
+      document.getElementById("list").innerHTML='<div class="err"><b>식당 정보를 불러오지 못했습니다.</b><br>구글 시트 공유 설정이 “링크가 있는 모든 사용자 · 뷰어”인지 확인한 뒤 새로고침해 주세요.<br><small>('+esc(e.message)+')</small></div>';
+      return;
+    }
+  }
+  buildFilters(); render();
+}
+
+/* ===== 필터 ===== */
+function buildFilters(){
+  const counts={}; DATA.forEach(d=>counts[d.grade]=(counts[d.grade]||0)+1);
+  const stars=(counts.s3||0)+(counts.s2||0)+(counts.s1||0);
+  document.getElementById("tally").innerHTML=
+    `<div><b>${DATA.length}</b>전체</div><div><b>${stars}</b>스타</div><div><b>${counts.bib||0}</b>빕 구르망</div><div><b>${counts.sel||0}</b>셀렉티드</div>`;
+
+  const gc=document.getElementById("gradeChips");
+  gc.innerHTML=[{key:"",label:"전체"},...GRADES].map(x=>
+    `<button class="chip" data-g="${x.key}" aria-pressed="${state.grade===x.key}">${x.label}${x.key?` ${counts[x.key]||0}`:""}</button>`).join("");
+  gc.onclick=e=>{const b=e.target.closest(".chip"); if(!b) return; state.grade=b.dataset.g;
+    gc.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b)); render();};
+
+  const regs=REGIONS.filter(r=>DATA.some(d=>d.region===r));
+  const rs=document.getElementById("region");
+  rs.innerHTML='<option value="">지역 전체</option>'+regs.map(r=>`<option>${r}</option>`).join("");
+  rs.onchange=()=>{state.region=rs.value;render();};
+
+  const cuis=[...new Set(DATA.map(d=>d.cuisine).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko"));
+  const cs=document.getElementById("cuisine");
+  cs.innerHTML='<option value="">요리 종류 전체</option>'+cuis.map(c=>`<option>${esc(c)}</option>`).join("");
+  cs.onchange=()=>{state.cuisine=cs.value;render();};
+
+  const q=document.getElementById("q");
+  q.oninput=()=>{state.q=q.value.trim().toLowerCase();render();};
+}
+
+/* ===== 그리기 ===== */
+function render(){
+  const list=document.getElementById("list");
+  const f=DATA.filter(d=>
+    (!state.grade||d.grade===state.grade)&&
+    (!state.region||d.region===state.region)&&
+    (!state.cuisine||d.cuisine===state.cuisine)&&
+    (!state.q||[d.ko,d.en,d.zh].join(" ").toLowerCase().includes(state.q)));
+  if(!f.length){list.innerHTML='<div class="empty">조건에 맞는 식당이 없어요.<br>검색어나 필터를 바꿔 보세요.</div>';return;}
+  let html="";
+  GRADES.forEach(g=>{
+    const items=f.filter(d=>d.grade===g.key);
+    if(!items.length) return;
+    html+=`<div class="group"><h2>${g.label}</h2><span>${items.length}곳</span></div>`;
+    html+=items.map(card).join("");
+  });
+  list.innerHTML=html;
+}
+
+function card(d){
+  const g=GRADES.find(x=>x.key===d.grade);
+  const i=DATA.indexOf(d);
+  const sub=[d.en,d.zh].filter(Boolean).map(esc).join(" / ");
+  return `<article class="card ${d.grade}">
+    <span class="badge">${g.badge}</span><span class="meta">${esc([d.cuisine,d.region].filter(Boolean).join(", "))}</span>
+    <h3 class="name">${esc(d.ko||d.en)}</h3>
+    <div class="sub">${sub}</div>
+    <div class="info">
+      ${d.menu?`<div><i>🍴</i><span>${esc(d.menu)}</span></div>`:""}
+      ${d.loc?`<div><i>📍</i><span>${esc(d.loc)}</span></div>`:""}
+    </div>
+    <div class="acts">
+      ${d.map?`<a class="btn" href="${d.map}" target="_blank" rel="noopener">🗺 구글 맵</a>`:""}
+      ${d.home?`<a class="btn" href="${d.home}" target="_blank" rel="noopener">🏠 홈페이지</a>`:""}
+      ${d.mich?`<a class="btn" href="${d.mich}" target="_blank" rel="noopener">📖 미쉐린 가이드</a>`:""}
+      <button class="btn copy" onclick="copyCard(${i},this)">📋 카톡 복사</button>
+    </div>
+  </article>`;
+}
+
+/* ===== 카톡 안내문 복사 ===== */
+function copyCard(i,btn){
+  const d=DATA[i], g=GRADES.find(x=>x.key===d.grade);
+  const lines=[
+    `🍽 ${d.ko||d.en}`,
+    [d.en,d.zh].filter(Boolean).join(" / "),
+    `⭐ 미쉐린 가이드 2026: ${g.label}`,
+    d.cuisine&&`🍴 요리: ${d.cuisine}`,
+    d.menu&&`✨ 추천 메뉴: ${d.menu}`,
+    d.loc&&`📍 위치: ${d.loc}`,
+    d.map&&`🗺 구글 맵: ${d.map}`,
+    d.mich&&`📖 미쉐린 가이드: ${d.mich}`,
+    "",
+    "※ 가격·영업시간은 변경될 수 있으니 방문 전 확인해 주세요."
+  ].filter(x=>x!==false&&x!==undefined&&x!==null);
+  const text=lines.join("\n").replace(/\n{3,}/g,"\n\n");
+  const ok=()=>{btn.textContent="✅ 복사됨";btn.classList.add("done");
+    setTimeout(()=>{btn.textContent="📋 카톡 복사";btn.classList.remove("done");},1800);};
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(ok).catch(()=>fallbackCopy(text,ok));
+  }else fallbackCopy(text,ok);
+}
+function fallbackCopy(text,ok){
+  const ta=document.createElement("textarea"); ta.value=text; ta.setAttribute("readonly","");
+  ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select();
+  try{document.execCommand("copy");ok();}catch(e){alert("복사하지 못했습니다. 길게 눌러 직접 복사해 주세요.");}
+  ta.remove();
+}
+
+/* ===== 공통 ===== */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function goTo(where){ if(where==="top") window.scrollTo({top:0,behavior:"smooth"}); }
+window.addEventListener("scroll",()=>document.getElementById("topBtn").classList.toggle("show",window.scrollY>600),{passive:true});
+
+load();
+</script>
+</body>
+</html>
