@@ -15,7 +15,9 @@
   --serif:var(--sans);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);overflow-x:hidden}
+body{overflow-x:hidden;max-width:100%}
+img,input,select,button{max-width:100%}
 body{font-family:var(--sans);background:#f5ede2;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
   padding-bottom:env(safe-area-inset-bottom,0px)}
 button{font-family:inherit;cursor:pointer}
@@ -46,7 +48,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{flex:0 0 auto;border:1px solid #6a2a40;background:transparent;color:#e8c9bd;border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:var(--wine);font-weight:700}
 .row2{display:flex;gap:8px;margin-top:8px}
-.row2 select{flex:1;border:1px solid #6a2a40;background:#45102a;color:#f3dccd;border-radius:8px;padding:8px 10px;font-size:14px}
+.row2 select{flex:1 1 0;min-width:0;width:100%;text-overflow:ellipsis;border:1px solid #6a2a40;background:#45102a;color:#f3dccd;border-radius:8px;padding:8px 10px;font-size:14px}
 
 /* 목록 */
 main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
@@ -101,7 +103,7 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
 .admin{background:#fff;border:2px dashed var(--gold);border-radius:14px;padding:16px;margin:0 0 18px}
 .admin h2{font-size:16px;color:var(--wine);margin-bottom:10px}
 .admin .arow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.admin input[type=date]{font-family:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.admin input[type=date]{min-width:0;font-family:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 .admin .gen{background:var(--wine2);color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:14px}
 .admin .out{margin-top:12px;display:none}
 .admin .out.show{display:block}
