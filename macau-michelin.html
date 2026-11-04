@@ -79,6 +79,24 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
 .empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:14px}
 .err{background:#fff4f4;border:1px solid #f1c7c7;color:#8a1c1c;border-radius:12px;padding:14px;font-size:14px;margin:8px 0}
 .notice{font-size:12px;color:var(--muted);text-align:center;margin-top:28px;line-height:1.7}
+.guide{background:var(--cream);border:1px solid var(--line);border-radius:14px;margin:0 0 16px;overflow:hidden}
+.guide summary{cursor:pointer;list-style:none;padding:13px 16px;font-family:var(--serif);font-weight:700;font-size:16px;color:var(--wine);
+  display:flex;justify-content:space-between;align-items:center}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary::after{content:"＋";color:var(--gold);font-family:var(--sans);font-weight:400}
+.guide[open] summary::after{content:"－"}
+.guide-body{padding:0 16px 16px;font-size:14px}
+.guide-lead{color:var(--muted);margin-bottom:12px}
+.guide dl{display:grid;gap:12px}
+.g-item{border-left:4px solid var(--gold);padding-left:12px}
+.g-item.s{border-color:var(--star)} .g-item.b{border-color:var(--bib)}
+.g-item.s .badge{background:#fbe4e7;color:var(--star)}
+.g-item.b .badge{background:#fde9dc;color:var(--bib)}
+.g-item.l .badge{background:#f3e8d2;color:var(--sel)}
+.g-item dd{margin-top:5px}
+.g-item ul{list-style:none;margin-top:6px;display:grid;gap:2px}
+.g-item li b{color:var(--star);display:inline-block;width:3.2em}
+.guide-note{margin-top:14px;font-size:12px;color:var(--muted)}
 .copy-foot{background:var(--nav);color:#d9b7aa;text-align:center;font-size:12px;line-height:1.8;
   padding:24px 20px calc(env(safe-area-inset-bottom,0px) + 28px)}
 .copy-foot .cr{color:var(--rose);margin-top:6px;letter-spacing:.02em}
@@ -111,6 +129,33 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
 </div>
 
 <main>
+  <details class="guide">
+    <summary>미쉐린 등급 안내</summary>
+    <div class="guide-body">
+      <p class="guide-lead">세 가지 모두 미쉐린 가이드에 실린 식당입니다. 별을 받았는지, 가격대가 어떤지로 나뉩니다.</p>
+      <dl>
+        <div class="g-item s">
+          <dt><span class="badge">★ 스타 (1~3스타)</span></dt>
+          <dd>요리 수준만 보고 주는 최고 등급입니다. 실내 장식이나 서비스는 평가하지 않습니다.
+            <ul>
+              <li><b>3스타</b> 일부러 찾아갈 가치가 있는 최고의 요리</li>
+              <li><b>2스타</b> 돌아가서라도 들를 가치가 있는 탁월한 요리</li>
+              <li><b>1스타</b> 수준 높은 요리</li>
+            </ul>
+          </dd>
+        </div>
+        <div class="g-item b">
+          <dt><span class="badge">빕 구르망</span></dt>
+          <dd>맛있고 가격 대비 만족도가 높은 식당입니다. 부담 없는 가격대의 가성비 맛집이라고 보시면 됩니다.</dd>
+        </div>
+        <div class="g-item l">
+          <dt><span class="badge">셀렉티드</span></dt>
+          <dd>별이나 빕 구르망은 아니지만, 같은 기준으로 평가받아 가이드에 실린 추천 식당입니다. 다음 해에 별이나 빕 구르망으로 올라가기도 합니다.</dd>
+        </div>
+      </dl>
+      <p class="guide-note">‘길거리 음식’은 등급이 아니라 요리 종류입니다. 등급은 해마다 다시 정해지며, 식당이 돈을 내고 실릴 수는 없습니다.</p>
+    </div>
+  </details>
   <div class="status" id="status">식당 정보를 불러오는 중…</div>
   <div id="list"></div>
   <p class="notice">출처: MICHELIN Guide Hong Kong &amp; Macau 2026<br>가격·영업시간·등급은 변경될 수 있으니 방문 전 공식 채널에서 확인해 주세요.</p>
