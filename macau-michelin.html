@@ -95,6 +95,9 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
 .g-item dd{margin-top:5px}
 .g-item ul{list-style:none;margin-top:6px;display:grid;gap:2px}
 .g-item li b{color:var(--star);display:inline-block;width:3.2em}
+.g-item.p{margin-top:12px}
+.g-item.p .badge{background:#f3e8d2;color:var(--sel)}
+.g-item.p li b{color:var(--sel)}
 .guide-note{margin-top:14px;font-size:12px;color:var(--muted)}
 .gate{max-width:520px;margin:60px auto;padding:28px 22px;background:var(--cream);border:1px solid var(--line);border-radius:16px;text-align:center}
 .gate h2{font-size:20px;color:var(--wine);margin-bottom:8px}
@@ -181,6 +184,17 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
           <dd>별이나 빕 구르망은 아니지만, 같은 기준으로 평가받아 가이드에 실린 추천 식당입니다. 다음 해에 별이나 빕 구르망으로 올라가기도 합니다.</dd>
         </div>
       </dl>
+      <div class="g-item p">
+        <dt><span class="badge">💰 가격대</span></dt>
+        <dd>미쉐린 가이드의 가격 표시입니다.
+          <ul>
+            <li><b>$</b> 부담 없는 가격</li>
+            <li><b>$$</b> 보통</li>
+            <li><b>$$$</b> 특별한 날</li>
+            <li><b>$$$$</b> 최고급</li>
+          </ul>
+        </dd>
+      </div>
       <p class="guide-note">‘길거리 음식’은 등급이 아니라 요리 종류입니다. 등급은 해마다 다시 정해지며, 식당이 돈을 내고 실릴 수는 없습니다.</p>
     </div>
   </details>
@@ -243,7 +257,8 @@ function toRecords(rows){
   const idx={
     grade:col("등급"), en:col("식당 영어이름"), zh:col("중문"), ko:col("한글"),
     cuisine:col("요리 종류"), menu:col("메뉴"), loc:col("위치"),
-    home:col("홈링크"), map:col("구글맵 링크"), mich:col("미쉐린 가이드"), region:col("지역")
+    home:col("홈링크"), map:col("구글맵 링크"), mich:col("미쉐린 가이드"), region:col("지역"),
+    hours:col("영업시간"), closed:col("휴무일"), price:col("가격대")
   };
   if(idx.grade<0||idx.en<0) throw new Error("시트 머리글(등급·식당 영어이름)을 찾지 못했습니다.");
   const g=(r,k)=>idx[k]>=0?(r[idx[k]]||"").trim():"";
@@ -253,7 +268,8 @@ function toRecords(rows){
     return {
       grade: grade?grade.key:"", en:g(r,"en"), zh:g(r,"zh"), ko:g(r,"ko"),
       cuisine:g(r,"cuisine"), menu:g(r,"menu"), loc:g(r,"loc"),
-      home:cleanUrl(g(r,"home")), map:cleanUrl(g(r,"map")), mich:cleanUrl(g(r,"mich")), region:g(r,"region")
+      home:cleanUrl(g(r,"home")), map:cleanUrl(g(r,"map")), mich:cleanUrl(g(r,"mich")), region:g(r,"region"),
+      hours:g(r,"hours"), closed:g(r,"closed"), price:g(r,"price")
     };
   }).filter(d=>d.grade && (d.en||d.ko));
 }
@@ -342,6 +358,9 @@ function card(d){
     <div class="info">
       ${d.menu?`<div><i>🍴</i><span>${esc(d.menu)}</span></div>`:""}
       ${d.loc?`<div><i>📍</i><span>${esc(d.loc)}</span></div>`:""}
+      ${d.hours?`<div><i>🕒</i><span>${d.hours.split(" / ").map(esc).join("<br>")}</span></div>`:""}
+      ${d.closed?`<div><i>🚫</i><span>${esc(closedText(d.closed))}</span></div>`:""}
+      ${d.price?`<div><i>💰</i><span>${esc(priceText(d.price))}</span></div>`:""}
     </div>
     <div class="acts">
       <a class="btn" href="${walkUrl(d)}" target="_blank" rel="noopener">🗺 구글 맵</a>
@@ -352,6 +371,11 @@ function card(d){
   </article>`;
 }
 
+
+/* ===== 가격대 설명 ===== */
+const PRICE_LABEL={"$":"부담 없는 가격","$$":"보통","$$$":"특별한 날","$$$$":"최고급"};
+function priceText(p){ return p?(p+(PRICE_LABEL[p]?" · "+PRICE_LABEL[p]:"")):""; }
+function closedText(c){ return !c?"":(c==="없음"?"휴무 없음":"휴무 "+c); }
 
 /* ===== 구글 맵 도보 경로 화면 (현재 위치 → 식당, 시작은 직접 누름) ===== */
 function walkUrl(d){
@@ -371,6 +395,9 @@ function copyCard(i,btn){
     d.cuisine&&`🍴 요리: ${d.cuisine}`,
     d.menu&&`✨ 추천 메뉴: ${d.menu}`,
     d.loc&&`📍 위치: ${d.loc}`,
+    d.hours&&`🕒 영업시간: ${d.hours}`,
+    d.closed&&`🚫 ${closedText(d.closed)}`,
+    d.price&&`💰 가격대: ${priceText(d.price)}`,
     d.map&&`🗺 구글 맵: ${d.map}`,
     d.mich&&`📖 미쉐린 가이드: ${d.mich}`,
     "",
