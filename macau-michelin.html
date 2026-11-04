@@ -94,6 +94,20 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
 .g-item ul{list-style:none;margin-top:6px;display:grid;gap:2px}
 .g-item li b{color:var(--star);display:inline-block;width:3.2em}
 .guide-note{margin-top:14px;font-size:12px;color:var(--muted)}
+.gate{max-width:520px;margin:60px auto;padding:28px 22px;background:var(--cream);border:1px solid var(--line);border-radius:16px;text-align:center}
+.gate h2{font-size:20px;color:var(--wine);margin-bottom:8px}
+.gate p{font-size:14px;color:var(--muted)}
+.until{background:#fff6ec;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--sel);margin:0 0 14px}
+.admin{background:#fff;border:2px dashed var(--gold);border-radius:14px;padding:16px;margin:0 0 18px}
+.admin h2{font-size:16px;color:var(--wine);margin-bottom:10px}
+.admin .arow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.admin input[type=date]{font-family:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.admin .gen{background:var(--wine2);color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:14px}
+.admin .out{margin-top:12px;display:none}
+.admin .out.show{display:block}
+.admin .link{width:100%;font-family:inherit;font-size:13px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#faf6f0;color:var(--ink)}
+.admin .end{font-size:13px;color:var(--sel);margin:8px 0}
+.admin .hint{font-size:12px;color:var(--muted);margin-top:8px}
 .copy-foot{background:var(--nav);color:#d9b7aa;text-align:center;font-size:12px;line-height:1.8;
   padding:24px 20px calc(env(safe-area-inset-bottom,0px) + 28px)}
 .copy-foot .cr{color:var(--rose);margin-top:6px;letter-spacing:.02em}
@@ -126,6 +140,21 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
 </div>
 
 <main>
+  <section class="admin" id="admin" hidden>
+    <h2>고객용 링크 만들기</h2>
+    <div class="arow">
+      <label for="endDate" style="font-size:14px">관광 마지막 날</label>
+      <input type="date" id="endDate">
+      <button class="gen" id="genBtn">링크 만들기</button>
+    </div>
+    <div class="out" id="genOut">
+      <div class="end" id="genEnd"></div>
+      <input class="link" id="genLink" readonly>
+      <div class="acts"><button class="btn copy" id="genCopy">📋 링크 복사</button></div>
+      <p class="hint">고르신 날 밤 12시(마카오 시간)가 지나면 이 링크는 열리지 않습니다.</p>
+    </div>
+  </section>
+  <div class="until" id="untilNote" hidden></div>
   <details class="guide">
     <summary>미쉐린 등급 안내</summary>
     <div class="guide-body">
@@ -355,7 +384,74 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",
 function goTo(where){ if(where==="top") window.scrollTo({top:0,behavior:"smooth"}); }
 window.addEventListener("scroll",()=>document.getElementById("topBtn").classList.toggle("show",window.scrollY>600),{passive:true});
 
-load();
+/* ===== 공개 기간 설정 ===== */
+const ADMIN_KEY = "irene-mo-2026";   // 관리자 주소: …/macau-michelin.html?admin=irene-mo-2026
+const LINK_SALT = "macau-michelin-irene";
+const MACAU_OFFSET_H = 8;            // 마카오 시간(UTC+8)
+
+function sig(d){ // 날짜를 함부로 바꾸지 못하게 하는 확인 코드
+  let h=0x811c9dc5; const t=LINK_SALT+"|"+d;
+  for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return h.toString(36).slice(0,6);
+}
+function endMs(d){ // 고른 날 밤 12시(마카오 시간) = 다음날 0시
+  const y=+d.slice(0,4), m=+d.slice(4,6), day=+d.slice(6,8);
+  return Date.UTC(y,m-1,day+1,0,0,0)-MACAU_OFFSET_H*3600*1000;
+}
+function fmtDate(d){
+  const w="일월화수목금토"[new Date(Date.UTC(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8))).getUTCDay()];
+  return `${+d.slice(0,4)}년 ${+d.slice(4,6)}월 ${+d.slice(6,8)}일(${w})`;
+}
+function macauToday(){
+  const n=new Date(Date.now()+MACAU_OFFSET_H*3600*1000);
+  return n.toISOString().slice(0,10);
+}
+function showGate(title,msg){
+  try{localStorage.removeItem(CACHE_KEY);}catch(e){}
+  document.querySelector(".bar").hidden=true;
+  document.getElementById("tally").innerHTML="";
+  document.querySelector("main").innerHTML=`<div class="gate"><h2>${title}</h2><p>${msg}</p></div>`;
+}
+
+function setupAdmin(){
+  const box=document.getElementById("admin"); box.hidden=false;
+  const inp=document.getElementById("endDate"); inp.value=macauToday(); inp.min=macauToday();
+  document.getElementById("genBtn").onclick=()=>{
+    if(!inp.value){alert("날짜를 골라 주세요.");return;}
+    const d=inp.value.replace(/-/g,"");
+    const url=location.origin+location.pathname+"?d="+d+"&k="+sig(d);
+    document.getElementById("genLink").value=url;
+    document.getElementById("genEnd").textContent=`${fmtDate(d)} 밤 12시까지 열리는 링크입니다.`;
+    document.getElementById("genOut").classList.add("show");
+  };
+  document.getElementById("genCopy").onclick=function(){
+    const t=document.getElementById("genLink").value, btn=this;
+    const ok=()=>{btn.textContent="✅ 복사됨";btn.classList.add("done");
+      setTimeout(()=>{btn.textContent="📋 링크 복사";btn.classList.remove("done");},1800);};
+    if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(ok).catch(()=>fallbackCopy(t,ok));
+    else fallbackCopy(t,ok);
+  };
+}
+
+function start(){
+  const p=new URLSearchParams(location.search);
+  if(p.get("admin")===ADMIN_KEY){ setupAdmin(); load(); return; }
+  const d=p.get("d")||"", k=p.get("k")||"";
+  if(!/^\d{8}$/.test(d)||k!==sig(d)){
+    showGate("링크를 확인해 주세요","담당자에게 받은 안내 링크로 다시 접속해 주세요.");
+    return;
+  }
+  const end=endMs(d);
+  if(Date.now()>=end){
+    showGate("안내 기간이 끝났습니다","이 안내는 "+fmtDate(d)+" 밤 12시까지 제공되었습니다.<br>이용해 주셔서 감사합니다.");
+    return;
+  }
+  const note=document.getElementById("untilNote");
+  note.hidden=false; note.textContent="이 안내는 "+fmtDate(d)+" 밤 12시(마카오 시간)까지 볼 수 있어요.";
+  setInterval(()=>{ if(Date.now()>=end) location.reload(); },60000);
+  load();
+}
+start();
 </script>
 </body>
 </html>
