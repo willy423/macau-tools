@@ -342,7 +342,7 @@ function card(d){
       ${d.loc?`<div><i>📍</i><span>${esc(d.loc)}</span></div>`:""}
     </div>
     <div class="acts">
-      ${d.map?`<a class="btn" href="${d.map}" target="_blank" rel="noopener">🗺 구글 맵</a>`:""}
+      <a class="btn" href="${walkUrl(d)}" target="_blank" rel="noopener">🗺 구글 맵</a>
       ${d.home?`<a class="btn" href="${d.home}" target="_blank" rel="noopener">🏠 홈페이지</a>`:""}
       ${d.mich?`<a class="btn" href="${d.mich}" target="_blank" rel="noopener">📖 미쉐린 가이드</a>`:""}
       <button class="btn copy" onclick="copyCard(${i},this)">📋 카톡 복사</button>
@@ -350,6 +350,15 @@ function card(d){
   </article>`;
 }
 
+
+/* ===== 구글 맵 도보 길찾기 (현재 위치 → 식당) ===== */
+function walkUrl(d){
+  const q=new URLSearchParams({api:"1",travelmode:"walking",dir_action:"navigate"});
+  q.set("destination",(d.en||d.ko)+", Macau");
+  const m=(d.map||"").match(/place_id:([A-Za-z0-9_-]+)/);
+  if(m) q.set("destination_place_id",m[1]);
+  return "https://www.google.com/maps/dir/?"+q.toString();
+}
 /* ===== 카톡 안내문 복사 ===== */
 function copyCard(i,btn){
   const d=DATA[i], g=GRADES.find(x=>x.key===d.grade);
