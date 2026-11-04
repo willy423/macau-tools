@@ -351,9 +351,9 @@ function card(d){
 }
 
 
-/* ===== 구글 맵 도보 길찾기 (현재 위치 → 식당) ===== */
+/* ===== 구글 맵 도보 경로 화면 (현재 위치 → 식당, 시작은 직접 누름) ===== */
 function walkUrl(d){
-  const q=new URLSearchParams({api:"1",travelmode:"walking",dir_action:"navigate"});
+  const q=new URLSearchParams({api:"1",travelmode:"walking"});
   q.set("destination",(d.en||d.ko)+", Macau");
   const m=(d.map||"").match(/place_id:([A-Za-z0-9_-]+)/);
   if(m) q.set("destination_place_id",m[1]);
