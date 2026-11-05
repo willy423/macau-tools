@@ -128,14 +128,14 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
   <div class="hero-in">
     <div class="yr">MICHELIN GUIDE 2026</div>
     <h1>마카오 미쉐린<br>식당 안내</h1>
-    <p>등급·지역·요리로 골라 보고, 고객에게 보낼 안내문을 바로 복사할 수 있어요.</p>
+    <p id="heroText">등급·지역·요리로 골라 보세요. 🗺 구글 맵을 누르면 가는 길이 나와요.</p>
     <div class="tally" id="tally"></div>
   </div>
 </header>
 
 <div class="bar">
   <div class="bar-in">
-    <input class="search" id="q" type="search" placeholder="식당 이름 검색 (한글·영어·중문)" aria-label="식당 이름 검색">
+    <input class="search" id="q" type="search" placeholder="식당 이름·위치 검색 (예: 타이파, 리스보아)" aria-label="식당 이름·위치 검색">
     <div class="chips" id="gradeChips" role="group" aria-label="등급"></div>
     <div class="row2">
       <select id="region" aria-label="지역"><option value="">지역 전체</option></select>
@@ -335,7 +335,7 @@ function render(){
     (!state.grade||d.grade===state.grade)&&
     (!state.region||d.region===state.region)&&
     (!state.cuisine||d.cuisine===state.cuisine)&&
-    (!state.q||[d.ko,d.en,d.zh].join(" ").toLowerCase().includes(state.q)));
+    (!state.q||[d.ko,d.en,d.zh,d.loc,d.region].join(" ").toLowerCase().includes(state.q)));
   if(!f.length){list.innerHTML='<div class="empty">조건에 맞는 식당이 없어요.<br>검색어나 필터를 바꿔 보세요.</div>';return;}
   let html="";
   GRADES.forEach(g=>{
@@ -366,7 +366,7 @@ function card(d){
       <a class="btn" href="${walkUrl(d)}" target="_blank" rel="noopener">🗺 구글 맵</a>
       ${d.home?`<a class="btn" href="${d.home}" target="_blank" rel="noopener">🏠 홈페이지</a>`:""}
       ${d.mich?`<a class="btn" href="${d.mich}" target="_blank" rel="noopener">📖 미쉐린 가이드</a>`:""}
-      <button class="btn copy" onclick="copyCard(${i},this)">📋 카톡 복사</button>
+      ${IS_ADMIN?`<button class="btn copy" onclick="copyCard(${i},this)">📋 카톡 복사</button>`:""}
     </div>
   </article>`;
 }
@@ -423,6 +423,7 @@ function goTo(where){ if(where==="top") window.scrollTo({top:0,behavior:"smooth"
 window.addEventListener("scroll",()=>document.getElementById("topBtn").classList.toggle("show",window.scrollY>600),{passive:true});
 
 /* ===== 공개 기간 설정 ===== */
+let IS_ADMIN=false;
 const ADMIN_KEY = "irene-mo-2026";   // 관리자 주소: …/macau-michelin.html?admin=irene-mo-2026
 const LINK_SALT = "macau-michelin-irene";
 const MACAU_OFFSET_H = 8;            // 마카오 시간(UTC+8)
@@ -473,7 +474,11 @@ function setupAdmin(){
 
 function start(){
   const p=new URLSearchParams(location.search);
-  if(p.get("admin")===ADMIN_KEY){ setupAdmin(); load(); return; }
+  if(p.get("admin")===ADMIN_KEY){
+    IS_ADMIN=true;
+    document.getElementById("heroText").textContent="등급·지역·요리로 골라 보고, 고객에게 보낼 안내문을 바로 복사할 수 있어요.";
+    setupAdmin(); load(); return;
+  }
   const d=p.get("d")||"", k=p.get("k")||"";
   if(!/^\d{8}$/.test(d)||k!==sig(d)){
     showGate("링크를 확인해 주세요","담당자에게 받은 안내 링크로 다시 접속해 주세요.");
@@ -484,8 +489,6 @@ function start(){
     showGate("안내 기간이 끝났습니다","이 안내는 "+fmtDate(d)+" 밤 12시까지 제공되었습니다.<br>이용해 주셔서 감사합니다.");
     return;
   }
-  const note=document.getElementById("untilNote");
-  note.hidden=false; note.textContent="이 안내는 "+fmtDate(d)+" 밤 12시(마카오 시간)까지 볼 수 있어요.";
   setInterval(()=>{ if(Date.now()>=end) location.reload(); },60000);
   load();
 }
