@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>환율 계산기</title>
+<meta property="og:title" content="가이드 계산기">
+<meta property="og:type" content="website">
+<script>
+  try {
+    var m = localStorage.getItem('fx-calc-theme');
+    document.documentElement.setAttribute('data-theme', m === 'dark' ? 'dark' : 'light');
+  } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #E9E1D3;
+    --card: #F3EDE2;
+    --text: #3A3330;
+    --muted: #66594F;
+    --accent: #C76B2B;
+    --accent-text: #FFFFFF;
+    --line: #CBBDA6;
+    --key: #DED2BF;
+    --key-op: #E8C9A8;
+    --op-text: #8F4314;
+    --error: #B3261E;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #221D19; --card: #2B2520; --text: #F2EBE1; --muted: #BFB3A6;
+      --accent: #E08A4C; --accent-text: #221D19; --line: #403830;
+      --key: #3A322B; --key-op: #4A3A2E; --op-text: #F0A06A; --error: #F28B82;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #221D19; --card: #2B2520; --text: #F2EBE1; --muted: #BFB3A6;
+    --accent: #E08A4C; --accent-text: #221D19; --line: #403830;
+    --key: #3A322B; --key-op: #4A3A2E; --op-text: #F0A06A; --error: #F28B82;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { height: 100%; }
+  body {
+    margin: 0; min-height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    font-size: 16px; line-height: 1.5;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 16px 16px 88px; display: grid; gap: 16px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0; }
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .mode { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--key); }
+  .mode button {
+    min-height: 44px; padding: 0 14px; border: 0; background: transparent; color: var(--text);
+    font: inherit; font-size: 16px; font-weight: 500; cursor: pointer;
+  }
+  .mode button + button { border-left: 1px solid var(--line); }
+  .mode button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .col { display: grid; gap: 16px; align-content: start; }
+  @media (min-width: 900px) {
+    .wrap { grid-template-columns: 1fr 1fr; align-items: start; }
+    .head, .views, .pv { grid-column: 1 / -1; }
+  }
+
+  /* 통화 선택 */
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+  .tab {
+    min-height: 44px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--key); color: var(--text); font: inherit; font-size: 16px; font-weight: 500; cursor: pointer;
+  }
+  .tab[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+
+  /* 화면 표시부 */
+  .display { text-align: right; padding: 8px 4px 12px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+  .expr { color: var(--muted); font-size: 17px; min-height: 26px; word-break: break-all; }
+  .main { font-size: 40px; font-weight: 600; line-height: 1.2; word-break: break-all; font-variant-numeric: tabular-nums; }
+  .main small { font-size: 18px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .msg { color: var(--error); font-size: 16px; min-height: 24px; margin: 6px 0 0; }
+
+  /* 키패드 */
+  .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .key {
+    min-height: 58px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--key); color: var(--text); font: inherit; font-size: 22px; font-weight: 600; cursor: pointer;
+    touch-action: manipulation;
+  }
+  .key.op { background: var(--key-op); color: var(--op-text); font-size: 28px; }
+  .key.fn { color: var(--text); font-size: 20px; }
+  .key.eq { background: var(--accent); color: var(--accent-text); border-color: var(--accent); grid-row: span 2; font-size: 28px; }
+  .key.zero { grid-column: span 2; }
+  .key:active { transform: scale(0.97); }
+  button:focus-visible, input:focus-visible, summary:focus-visible, .row:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* 공통 */
+  h2 { font-size: 18px; font-weight: 600; margin: 0; }
+  .h2row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .hint { color: var(--muted); font-size: 15px; margin: 4px 0 12px; }
+  .ghost {
+    min-height: 44px; padding: 0 14px; border: 1px solid var(--accent); border-radius: 10px;
+    background: transparent; color: var(--op-text); font: inherit; font-size: 16px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+  }
+  .save {
+    width: 100%; min-height: 50px; border: 0; border-radius: 12px;
+    background: var(--accent); color: var(--accent-text); font: inherit; font-size: 18px; font-weight: 600; cursor: pointer;
+  }
+  .field { margin-bottom: 12px; }
+  .field label, .field .lbl { display: block; font-weight: 500; margin-bottom: 4px; }
+  .txt {
+    width: 100%; min-height: 48px; padding: 8px 12px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--key); color: var(--text);
+    font: inherit; font-size: 18px;
+  }
+  .txt.bad { border-color: var(--error); }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  select.txt { cursor: pointer; min-height: 52px; }
+  .inline { display: flex; align-items: center; gap: 8px; }
+  .inline input {
+    flex: 1; min-width: 0; min-height: 48px; padding: 8px 12px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--key); color: var(--text);
+    font: inherit; font-size: 18px; text-align: right;
+  }
+  .inline input.bad { border-color: var(--error); }
+  .inline span { font-size: 17px; }
+  .ferr { color: var(--error); font-size: 15px; margin-top: 4px; }
+  .ferr:empty { display: none; }
+
+  /* 환산 결과 */
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .row {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 12px 4px; border-bottom: 1px solid var(--line); min-height: 56px; cursor: pointer;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row.current { background: var(--key-op); border-radius: 10px; padding-left: 10px; padding-right: 10px; }
+  .row .name { font-weight: 500; }
+  .row .sub { display: block; color: var(--muted); font-size: 14px; }
+  .row .val { font-size: 20px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; word-break: break-all; }
+  .row .val.need { font-size: 16px; font-weight: 500; color: var(--error); }
+
+  /* 받은 돈 기록 */
+  .totals { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
+  .totals:empty { display: none; }
+  .chip {
+    padding: 6px 10px; border-radius: 8px; background: var(--key-op); color: var(--text);
+    font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .totals .lbl { width: 100%; color: var(--muted); font-size: 15px; }
+  .recs { list-style: none; margin: 0; padding: 0; }
+  .rec {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "info del" "pay pay";
+    align-items: start; column-gap: 10px; row-gap: 4px;
+    padding: 10px 0; border-bottom: 1px solid var(--line);
+  }
+  .rec > div:first-child { grid-area: info; min-width: 0; }
+  .rec .ramt { grid-area: pay; text-align: left; }
+  .rec .del { grid-area: del; }
+  .rname { white-space: nowrap; }
+  .rec:last-child { border-bottom: 0; }
+  [hidden] { display: none !important; }
+  .views { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .views button {
+    min-height: 44px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text);
+    font: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .views button[aria-pressed="true"] { background: var(--text); color: var(--card); border-color: var(--text); }
+  .pv { max-width: 640px; width: 100%; justify-self: center; }
+  .items { display: grid; gap: 6px; margin-bottom: 12px; }
+  .item {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 48px; padding: 0 12px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--key); color: var(--text);
+    font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; text-align: left;
+  }
+  .item span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .item[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .people { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+  .people button {
+    min-height: 44px; border: 1px solid var(--line); border-radius: 10px; background: var(--key); color: var(--text);
+    font: inherit; font-size: 17px; font-weight: 600; cursor: pointer;
+  }
+  .people button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .psum { padding: 10px 12px; border-radius: 10px; background: var(--key-op); font-size: 17px; font-weight: 600;
+    margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .manage { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .ilist { list-style: none; margin: 0 0 12px; padding: 0; }
+  .ilist li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .ilist li span { min-width: 0; word-break: break-all; }
+  .moon {
+    width: 36px; height: 36px; padding: 0; border: 1px solid var(--line); border-radius: 50%;
+    background: var(--key); color: var(--muted); display: grid; place-items: center; cursor: pointer;
+  }
+  .moon[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .totop {
+    position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 15;
+    width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%;
+    background: var(--accent); color: var(--accent-text); display: grid; place-items: center; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(58, 51, 48, .25);
+  }
+  .totop[hidden] { display: none; }
+  .pickbar { margin-top: 10px; padding: 12px; border-radius: 12px; background: var(--key-op); }
+  .pickbar[hidden] { display: none; }
+  .picktxt { font-size: 18px; font-weight: 600; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+  .picksub { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .ghost.big { width: 100%; min-height: 50px; white-space: normal; background: var(--card); }
+  .opt { color: var(--muted); font-weight: 400; font-size: 15px; }
+  .due { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .dueval { flex: 1 1 100px; min-height: 48px; display: flex; align-items: center; padding: 0 12px;
+    border: 1px dashed var(--line); border-radius: 10px; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dueval.none { color: var(--muted); font-weight: 400; font-size: 16px; }
+  .addpay { width: 100%; min-height: 48px; margin-bottom: 8px; border: 1px solid var(--accent); border-radius: 12px;
+    background: transparent; color: var(--op-text); font: inherit; font-size: 17px; font-weight: 600; cursor: pointer; }
+  .pend { list-style: none; margin: 0 0 8px; padding: 0; }
+  .pend li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .pend .pamt { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .remain { margin: 0 0 12px; padding: 12px; border-radius: 12px; background: var(--key-op); }
+  .remain:empty { display: none; }
+  .remain .rt { font-weight: 600; margin-bottom: 4px; }
+  .remain .rsub { color: var(--muted); font-size: 15px; margin-bottom: 4px; }
+  .rline { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 44px; margin-top: 6px; padding: 0 12px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: 18px;
+    font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; cursor: pointer; }
+  .rline span:first-child { color: var(--muted); font-size: 15px; font-weight: 500; }
+  .remain.done { background: var(--accent); color: var(--accent-text); font-size: 18px; font-weight: 600; text-align: center; }
+  .remain.warn { background: var(--key); color: var(--error); }
+  .rpay { display: flex; flex-wrap: wrap; column-gap: 8px; }
+  .rpay div { white-space: nowrap; }
+  .rnote { color: var(--muted); font-size: 14px; }
+  .rline.sel { border: 2px solid var(--accent); }
+  .naver { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .nvbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .nv {
+    display: flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--key); color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none;
+  }
+  .nv:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .foot { grid-column: 1 / -1; text-align: center; color: var(--muted); font-size: 11px; line-height: 1.6; padding: 8px 0 0; opacity: .85; }
+  .foot p { margin: 0; word-break: keep-all; }
+  .recbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--key); }
+  .seg button { min-height: 38px; padding: 0 16px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+  #recCopy { min-height: 38px; font-size: 15px; }
+  .rpay .rnet { width: 100%; color: var(--op-text); }
+  .rec.new { background: var(--key-op); border-radius: 10px; padding-left: 10px; padding-right: 10px; }
+  .savemsg.ok { color: var(--op-text); font-weight: 600; }
+  .ver { color: var(--muted); font-size: 14px; margin: 12px 0 0; text-align: right; }
+  .rname { font-weight: 600; word-break: break-all; }
+  .rtime { color: var(--muted); font-size: 14px; }
+  .ramt { font-size: 18px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  .del {
+    min-height: 44px; min-width: 56px; padding: 0 10px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--key); color: var(--text); font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .del.armed, .clear.armed { background: var(--error); color: #FFFFFF; border-color: var(--error); }
+  .empty { color: var(--muted); font-size: 15px; margin: 12px 0 0; }
+  .clear {
+    width: 100%; min-height: 44px; margin-top: 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: transparent; color: var(--muted); font: inherit; font-size: 15px; cursor: pointer;
+  }
+
+  /* 환율 설정 */
+  details summary {
+    min-height: 44px; display: flex; align-items: center; cursor: pointer;
+    font-size: 18px; font-weight: 600; list-style: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "열기"; margin-left: auto; font-size: 15px; font-weight: 500; color: var(--op-text); }
+  details[open] summary::after { content: "접기"; }
+  .savemsg { font-size: 15px; margin-top: 8px; min-height: 22px; color: var(--muted); }
+  .savemsg.err { color: var(--error); }
+
+  /* 알림 */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 12px); max-width: calc(100% - 32px);
+    background: var(--text); color: var(--card); padding: 12px 16px; border-radius: 12px;
+    font-size: 16px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 20;
+    word-break: break-all;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) { .key:active { transform: none; } .toast { transition: none; } }
+
+  /* 화면 밖으로 넘치지 않게 */
+  html, body { overflow-x: hidden; max-width: 100%; }
+  .wrap > *, .col > * { min-width: 0; }
+  .tabs, .keys { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  /* 휴대폰: 계산기가 한 화면에 들어오게 */
+  @media (max-width: 600px) {
+    .wrap { padding: 10px 10px 80px; gap: 10px; }
+    h1 { font-size: 19px; }
+    .mode { border-radius: 7px; }
+    .mode button { min-height: 28px; padding: 0 6px; font-size: 13px; }
+    .panel { padding: 12px; border-radius: 14px; }
+    .tabs { gap: 5px; margin-bottom: 8px; }
+    .tab { min-height: 34px; font-size: 15px; border-radius: 8px; }
+    .display { padding: 2px 2px 8px; margin-bottom: 8px; }
+    .expr { font-size: 16px; min-height: 22px; }
+    .main { font-size: 32px; }
+    .main small { font-size: 16px; }
+    .msg { min-height: 0; margin: 2px 0 0; }
+    .msg:empty { display: none; }
+    .keys { gap: 6px; }
+    .key { min-height: 50px; font-size: 21px; border-radius: 10px; }
+    .key.op, .key.eq { font-size: 25px; }
+    .key.fn { font-size: 19px; }
+    .row { padding: 10px 2px; min-height: 52px; }
+    .row .val { font-size: 18px; }
+    .h2row .ghost, .inline .ghost, .due .ghost {
+      min-height: 34px; padding: 0 10px; font-size: 14px; border-radius: 8px;
+    }
+    select.txt { min-height: 40px; padding: 4px 10px; font-size: 15px; border-radius: 8px; }
+    .views button { min-height: 40px; font-size: 15px; }
+    .item { min-height: 44px; }
+    #recFill, #dueSet { min-height: 30px; padding: 0 8px; font-size: 13px; border-radius: 7px; }
+    .totop { width: 42px; height: 42px; right: 12px; }
+    .rec .ramt { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="head">
+    <h1>환율 계산기</h1>
+    <button class="moon" id="moon" type="button" aria-label="어둡게 보기" aria-pressed="false">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z" fill="currentColor"/></svg>
+    </button>
+  </div>
+
+  <nav class="views" aria-label="화면 바꾸기">
+    <button type="button" id="goCalc" aria-pressed="true">계산기</button>
+    <button type="button" id="goPrice" aria-pressed="false">인원별 가격</button>
+  </nav>
+
+  <section class="panel" aria-label="계산기">
+    <div class="tabs" id="tabs" role="group" aria-label="입력 통화 선택"></div>
+    <div class="display">
+      <div class="expr" id="expr" aria-label="입력한 식"></div>
+      <div class="main" id="main" aria-live="polite">0</div>
+      <p class="msg" id="msg" role="alert"></p>
+    </div>
+    <div class="keys" id="keys">
+      <button class="key fn" data-k="C" aria-label="모두 지우기">C</button>
+      <button class="key fn" data-k="⌫" aria-label="한 글자 지우기">⌫</button>
+      <button class="key op" data-k="÷" aria-label="나누기">÷</button>
+      <button class="key op" data-k="×" aria-label="곱하기">×</button>
+      <button class="key" data-k="7">7</button>
+      <button class="key" data-k="8">8</button>
+      <button class="key" data-k="9">9</button>
+      <button class="key op" data-k="−" aria-label="빼기">−</button>
+      <button class="key" data-k="4">4</button>
+      <button class="key" data-k="5">5</button>
+      <button class="key" data-k="6">6</button>
+      <button class="key op" data-k="+" aria-label="더하기">+</button>
+      <button class="key" data-k="1">1</button>
+      <button class="key" data-k="2">2</button>
+      <button class="key" data-k="3">3</button>
+      <button class="key eq" data-k="=" aria-label="계산하기">=</button>
+      <button class="key zero" data-k="0">0</button>
+      <button class="key" data-k=".">.</button>
+    </div>
+  </section>
+
+  <div class="col">
+    <section class="panel" aria-label="환산 결과">
+      <div class="h2row">
+        <h2>환산 결과</h2>
+        <button class="ghost" id="copyAll" type="button">전체 복사</button>
+      </div>
+      <p class="hint">금액을 누르면 복사되고, 받을 금액 또는 받은 금액에 넣을 수 있어요.</p>
+      <ul class="rows" id="rows"></ul>
+      <div class="pickbar" id="pickbar" hidden>
+        <div class="picktxt" id="pickTxt"></div>
+        <div class="pair">
+          <button class="ghost big" id="pickDue" type="button">받을 금액에 넣기</button>
+          <button class="save" id="pickPaid" type="button">받은 금액에 넣기</button>
+        </div>
+        <div class="picksub">거스름돈·나눠 받기는 받을 금액, 딱 맞게 받았으면 받은 금액</div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="받은 돈 기록">
+      <h2>받은 돈 기록</h2>
+      <p class="hint">한 번에 받으면 받은 금액만 넣고 기록 저장을 누르세요. 여러 통화로 나눠 받으면 받을 금액을 먼저 정하고, 받은 돈을 하나씩 추가하세요.</p>
+      <div class="field">
+        <span class="lbl">고객</span>
+        <div class="pair">
+          <select class="txt" id="recGroup" aria-label="조 선택"></select>
+          <select class="txt" id="recPeople" aria-label="인원 선택"></select>
+        </div>
+        <div class="ferr" id="recNameErr"></div>
+      </div>
+      <div class="field">
+        <span class="lbl">받을 금액 <span class="opt">(나눠 받을 때만)</span></span>
+        <div class="due">
+          <span class="dueval" id="dueVal"></span>
+          <button class="ghost" id="dueSet" type="button">계산기 값</button>
+          <button class="ghost" id="dueClear" type="button">지우기</button>
+        </div>
+        <div class="ferr" id="dueErr"></div>
+      </div>
+      <div class="field">
+        <label for="recAmt">받은 금액</label>
+        <div class="inline">
+          <input id="recAmt" type="text" inputmode="decimal" autocomplete="off" placeholder="숫자 입력">
+          <button class="ghost" id="recFill" type="button">계산기 값</button>
+        </div>
+        <div class="ferr" id="recAmtErr"></div>
+      </div>
+      <div class="field">
+        <span class="lbl">받은 통화</span>
+        <div class="tabs" id="recTabs" role="group" aria-label="받은 통화 선택"></div>
+      </div>
+      <button class="addpay" id="recAdd" type="button">받은 돈 추가 (나눠 받을 때)</button>
+      <ul class="pend" id="pend"></ul>
+      <div class="remain" id="remain"></div>
+      <button class="save" id="recSave" type="button">기록 저장</button>
+      <p class="savemsg" id="recMsg" role="status"></p>
+      <div class="recbar">
+        <div class="seg" id="recView" role="group" aria-label="기록 보기">
+          <button type="button" data-v="today">오늘</button>
+          <button type="button" data-v="all">전체</button>
+        </div>
+        <button class="ghost" id="recCopy" type="button">카톡용 복사</button>
+      </div>
+      <div class="totals" id="totals"></div>
+      <ul class="recs" id="recs"></ul>
+      <p class="empty" id="recEmpty">아직 기록이 없어요. 조와 인원을 고르고 받은 금액을 넣은 뒤 기록 저장을 누르세요.</p>
+      <button class="clear" id="recClear" type="button">기록 모두 지우기</button>
+    </section>
+
+    <section class="panel">
+      <details id="rateBox">
+        <summary>환율 설정</summary>
+        <p class="hint">1달러(USD)가 각 통화로 얼마인지 입력하세요. 예를 들어 1달러가 7.8홍콩달러면 HKD 칸에 7.8을 넣습니다. 마카오 달러(MOP)는 홍콩 달러와 같은 금액으로 계산해요.</p>
+        <div id="rateFields"></div>
+        <button class="save" id="saveBtn" type="button">환율 저장</button>
+        <p class="savemsg" id="saveMsg" role="status"></p>
+        <div class="naver">
+          <span class="lbl">실시간 환율 확인 (네이버, 새 창)</span>
+          <div class="nvbtns">
+            <a class="nv" href="https://search.naver.com/search.naver?query=%EB%8B%AC%EB%9F%AC%20%ED%99%98%EC%9C%A8" target="_blank" rel="noopener">달러</a>
+            <a class="nv" href="https://search.naver.com/search.naver?query=%ED%99%8D%EC%BD%A9%20%EB%8B%AC%EB%9F%AC%20%ED%99%98%EC%9C%A8" target="_blank" rel="noopener">홍콩달러</a>
+            <a class="nv" href="https://search.naver.com/search.naver?query=%EC%9C%84%EC%95%88%20%ED%99%98%EC%9C%A8" target="_blank" rel="noopener">위안</a>
+          </div>
+        </div>
+      </details>
+      <p class="ver">화면 버전 3.4</p>
+    </section>
+  </div>
+
+  <section class="panel pv" id="viewPrice" aria-label="인원별 가격" hidden>
+    <h2>인원별 가격</h2>
+    <p class="hint">미리 저장한 상품을 고르고 인원을 누르면, 4개 통화 가격이 바로 나와요.</p>
+    <span class="lbl">상품</span>
+    <div class="items" id="items"></div>
+    <p class="empty" id="itemsEmpty">저장된 상품이 없어요. 아래 상품 관리에서 먼저 추가해 주세요.</p>
+    <span class="lbl">인원</span>
+    <div class="people" id="people"></div>
+    <div class="psum" id="psum"></div>
+    <p class="hint">금액을 누르면 복사되고, 받을 금액 또는 받은 금액에 넣을 수 있어요.</p>
+    <ul class="rows" id="priceRows"></ul>
+    <div class="pickbar" id="pickbar2" hidden>
+      <div class="picktxt" id="pickTxt2"></div>
+      <div class="pair">
+        <button class="ghost big" id="pickDue2" type="button">받을 금액에 넣기</button>
+        <button class="save" id="pickPaid2" type="button">받은 금액에 넣기</button>
+      </div>
+      <div class="picksub">넣으면 계산기 화면의 받은 돈 기록으로 이동하고, 인원도 같이 선택돼요.</div>
+    </div>
+
+    <details class="manage" id="manage">
+      <summary>상품 관리</summary>
+      <ul class="ilist" id="ilist"></ul>
+      <div class="field">
+        <label for="itemName">상품 이름</label>
+        <input class="txt" id="itemName" type="text" maxlength="30" autocomplete="off" placeholder="예: 투어 A">
+        <div class="ferr" id="itemNameErr"></div>
+      </div>
+      <div class="field">
+        <label for="itemPrice">1인 가격</label>
+        <div class="inline"><input id="itemPrice" type="text" inputmode="decimal" autocomplete="off" placeholder="숫자 입력"></div>
+        <div class="ferr" id="itemPriceErr"></div>
+      </div>
+      <div class="field">
+        <span class="lbl">가격 통화</span>
+        <div class="tabs" id="itemTabs" role="group" aria-label="가격 통화 선택"></div>
+      </div>
+      <button class="save" id="itemAdd" type="button">상품 추가</button>
+    </details>
+  </section>
+
+  <footer class="foot">
+    <p>Irene의 소중한 자료입니다.</p>
+    <p>본 앱의 모든 저작권은 Irene에게 있으며, 복제·배포·2차 가공을 금합니다.</p>
+    <p>Copyright © 2026 IRENE. All rights reserved.</p>
+  </footer>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="totop" id="toTop" type="button" aria-label="맨 위로" hidden>
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 5l-7 7m7-7l7 7M12 5v14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+  const CUR = [
+    { code: 'USD', name: '미국 달러', sym: '$', dec: 2 },
+    { code: 'HKD', name: '홍콩·마카오 달러', sym: 'HK$', dec: 2 },
+    { code: 'KRW', name: '원화', sym: '₩', dec: 0 },
+    { code: 'RMB', name: '중국 위안', sym: '¥', dec: 2 }
+  ];
+  const EDITABLE = ['HKD', 'RMB', 'KRW'];
+  const STORE_KEY = 'fx-calc-v2';
+  const OLD_KEY = 'fx-calc-v1';
+  const REC_KEY = 'fx-calc-records-v1';
+  const THEME_KEY = 'fx-calc-theme';
+  const OPS = '+−×÷';
+
+  let rates = { USD: 1, HKD: null, RMB: null, KRW: null };
+  let savedAt = null;
+  let cur = 'KRW';
+  let expr = '';
+  let done = false;
+  let records = [];
+  let recCur = 'USD';
+  let due = null;
+  let pending = [];
+  let saveArmed = false;
+  let changeCur = null;
+  let recView = 'today';
+  let copyLines = {};
+  let copyVals = {};
+  let picked = null;
+
+  const $ = (id) => document.getElementById(id);
+  const isOp = (c) => OPS.includes(c);
+  const curInfo = (code) => CUR.find((c) => c.code === code);
+
+  /* ---------- 저장 / 불러오기 ---------- */
+  function load() {
+    try {
+      let s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+      if (!s) {
+        const old = JSON.parse(localStorage.getItem(OLD_KEY) || 'null');
+        if (old && old.rates && old.rates.USD === 1) {
+          s = { rates: { HKD: old.rates.HKD, RMB: old.rates.RMB }, cur: old.cur };
+        }
+      }
+      if (!s) return;
+      EDITABLE.forEach((c) => {
+        const v = s.rates && s.rates[c];
+        if (typeof v === 'number' && v > 0) rates[c] = v;
+      });
+      if (s.cur && curInfo(s.cur)) cur = s.cur;
+      savedAt = s.savedAt || null;
+    } catch (e) { /* 저장된 값이 없거나 읽을 수 없으면 빈 상태로 시작 */ }
+  }
+  function persist() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        rates: { HKD: rates.HKD, RMB: rates.RMB, KRW: rates.KRW }, cur, savedAt
+      }));
+      return true;
+    } catch (e) { return false; }
+  }
+  function loadRecords() {
+    try {
+      const a = JSON.parse(localStorage.getItem(REC_KEY) || '[]');
+      if (!Array.isArray(a)) return;
+      records = a.map((x) => {
+        if (x && typeof x.amount === 'number' && !x.payments) {
+          return { id: x.id, name: x.name, at: x.at, due: null, note: '', payments: [{ amount: x.amount, cur: x.cur }] };
+        }
+        return x;
+      }).filter((x) => x && typeof x.name === 'string' && Array.isArray(x.payments) && x.payments.length &&
+        x.payments.every((p) => typeof p.amount === 'number' && curInfo(p.cur)));
+    } catch (e) { records = []; }
+  }
+  function persistRecords() {
+    try { localStorage.setItem(REC_KEY, JSON.stringify(records)); return true; }
+    catch (e) { return false; }
+  }
+
+  /* ---------- 숫자 표시 ---------- */
+  function fmt(n, dec) {
+    return n.toLocaleString('ko-KR', { minimumFractionDigits: 0, maximumFractionDigits: dec });
+  }
+  function fmtExpr(e) {
+    return e.replace(/\d+(\.\d*)?/g, (m) => {
+      const [i, d] = m.split('.');
+      return Number(i).toLocaleString('ko-KR') + (d !== undefined ? '.' + d : '');
+    }).replace(/([+−×÷])/g, ' $1 ');
+  }
+  function numToStr(n) {
+    let s = String(n);
+    if (/e/i.test(s)) s = n.toFixed(10).replace(/\.?0+$/, '');
+    return s;
+  }
+
+  /* ---------- 알림 / 복사 ---------- */
+  let toastTimer = null;
+  function toast(t) {
+    const el = $('toast');
+    el.textContent = t;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+  async function copyText(t) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(t);
+        return true;
+      }
+    } catch (e) { /* 아래 방법으로 다시 시도 */ }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = t;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  }
+  async function copyAndTell(t) {
+    if (!t) { toast('복사할 금액이 없어요. 먼저 숫자를 입력해 주세요.'); return; }
+    const ok = await copyText(t);
+    toast(ok ? '복사했어요: ' + t.replace(/\n/g, ' / ') : '복사가 안 돼요. 숫자를 길게 눌러 직접 복사해 주세요.');
+  }
+
+  /* ---------- 계산 (곱하기·나누기 먼저) ---------- */
+  function evaluate(e) {
+    if (!e || e === '-') return { value: 0 };
+    if (isOp(e.slice(-1))) e = e.slice(0, -1);
+    if (e.endsWith('.')) e = e.slice(0, -1);
+    const parts = e.split(/([+−×÷])/).filter((p) => p !== '');
+    const terms = [Number(parts[0])];
+    const addOps = [];
+    for (let i = 1; i < parts.length; i += 2) {
+      const op = parts[i];
+      const n = Number(parts[i + 1]);
+      const last = terms.length - 1;
+      if (op === '×') terms[last] *= n;
+      else if (op === '÷') {
+        if (n === 0) return { error: '0으로 나눌 수 없어요. 나누는 수를 바꿔 주세요.' };
+        terms[last] /= n;
+      } else { addOps.push(op); terms.push(n); }
+    }
+    let r = terms[0];
+    addOps.forEach((op, j) => { r = op === '+' ? r + terms[j + 1] : r - terms[j + 1]; });
+    if (!isFinite(r)) return { error: '계산할 수 없는 식이에요. C를 눌러 다시 입력해 주세요.' };
+    if (Math.abs(r) >= 1e15) return { error: '결과가 너무 커요. 15자리 이내로 계산해 주세요.' };
+    r = parseFloat(r.toPrecision(15));
+    return { value: r };
+  }
+
+  function lastSeg() {
+    const m = expr.match(/[^+−×÷]*$/);
+    return m ? m[0] : '';
+  }
+
+  /* ---------- 키 입력 ---------- */
+  function press(k) {
+    $('msg').textContent = '';
+    if (k === 'C') { expr = ''; done = false; }
+    else if (k === '⌫') {
+      if (done) { expr = ''; done = false; } else expr = expr.slice(0, -1);
+    }
+    else if (k === '=') {
+      if (expr === '') return;
+      const r = evaluate(expr);
+      if (r.error) { $('msg').textContent = r.error; return; }
+      expr = numToStr(r.value);
+      done = true;
+    }
+    else if (isOp(k)) {
+      if (expr === '' || expr === '-') expr = '0';
+      if (isOp(expr.slice(-1))) expr = expr.slice(0, -1);
+      if (expr.endsWith('.')) expr = expr.slice(0, -1);
+      expr += k;
+      done = false;
+    }
+    else if (k === '.') {
+      if (done) { expr = ''; done = false; }
+      const seg = lastSeg();
+      if (seg.includes('.')) return;
+      expr += (seg === '' || seg === '-') ? '0.' : '.';
+    }
+    else {
+      if (done) { expr = ''; done = false; }
+      const seg = lastSeg();
+      if (seg.replace(/[^0-9]/g, '').length >= 15) {
+        $('msg').textContent = '한 숫자는 15자리까지 입력할 수 있어요.';
+        return;
+      }
+      if (seg === '0' || seg === '-0') {
+        if (k === '0') return;
+        expr = expr.slice(0, -1) + k;
+      } else expr += k;
+    }
+    render();
+  }
+
+  /* ---------- 화면 그리기 ---------- */
+  function buildTabs(box, selected, onPick, labelSuffix) {
+    box.innerHTML = '';
+    CUR.forEach((c) => {
+      const b = document.createElement('button');
+      b.className = 'tab';
+      b.type = 'button';
+      b.textContent = c.code;
+      b.setAttribute('aria-pressed', String(c.code === selected));
+      b.setAttribute('aria-label', c.name + labelSuffix);
+      b.addEventListener('click', () => onPick(c.code));
+      box.appendChild(b);
+    });
+  }
+
+  function render() {
+    buildTabs($('tabs'), cur, (code) => { cur = code; persist(); render(); }, '로 입력');
+    $('expr').textContent = expr ? fmtExpr(expr) : '';
+    const r = evaluate(expr);
+    const info = curInfo(cur);
+    if (r.error) {
+      $('main').textContent = '—';
+      $('msg').textContent = r.error;
+    } else {
+      $('main').innerHTML = '';
+      $('main').append(fmt(r.value, 10));
+      const s = document.createElement('small');
+      s.textContent = info.code;
+      $('main').appendChild(s);
+    }
+
+    copyLines = {};
+    copyVals = {};
+    picked = null;
+    $('pickbar').hidden = true;
+    const inputText = r.error ? '' : fmt(r.value, 10) + ' ' + cur;
+    const rows = $('rows');
+    rows.innerHTML = '';
+    CUR.forEach((c) => {
+      const li = document.createElement('li');
+      li.className = 'row' + (c.code === cur ? ' current' : '');
+      li.tabIndex = 0;
+      li.setAttribute('role', 'button');
+      const left = document.createElement('div');
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = c.code + ' ' + c.name;
+      const sub = document.createElement('span');
+      sub.className = 'sub';
+      if (c.code === cur) sub.textContent = '입력 통화';
+      else if (c.code === 'USD') sub.textContent = '기준 통화';
+      else sub.textContent = rates[c.code] ? '1 USD = ' + fmt(rates[c.code], 4) + ' ' + c.code : '환율 미입력';
+      left.append(name, sub);
+
+      const val = document.createElement('div');
+      val.className = 'val';
+      if (r.error) val.textContent = '—';
+      else if (!rates[cur] || !rates[c.code]) {
+        val.className = 'val need';
+        const miss = !rates[cur] ? cur : c.code;
+        val.textContent = miss + ' 환율을 입력해 주세요';
+      } else {
+        const v = r.value * rates[c.code] / rates[cur];
+        val.textContent = c.sym + ' ' + fmt(v, c.dec);
+        copyLines[c.code] = fmt(v, c.dec) + ' ' + c.code;
+        copyVals[c.code] = Number(v.toFixed(c.dec));
+      }
+      li.setAttribute('aria-label', c.name + ' 금액 복사');
+      li.addEventListener('click', () => pickRow(c.code));
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickRow(c.code); }
+      });
+      li.append(left, val);
+      rows.appendChild(li);
+    });
+  }
+
+  async function pickRow(code) {
+    const t = copyLines[code];
+    if (!t || !(copyVals[code] > 0)) { copyAndTell(t); return; }
+    picked = { amount: copyVals[code], cur: code };
+    $('pickTxt').textContent = '선택한 금액: ' + t;
+    $('pickbar').hidden = false;
+    $('pickbar').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    const ok = await copyText(t);
+    toast(ok ? '복사했어요: ' + t : '선택했어요: ' + t + ' (복사는 안 됐어요)');
+  }
+  function usePicked(where) {
+    if (!picked) return;
+    const t = fmt(picked.amount, curInfo(picked.cur).dec) + ' ' + picked.cur;
+    if (where === 'due') {
+      due = { amount: picked.amount, cur: picked.cur };
+      $('dueErr').textContent = '';
+      toast('받을 금액으로 정했어요: ' + t);
+    } else {
+      $('recAmt').value = fmtInput(numToStr(picked.amount));
+      $('recAmt').classList.remove('bad');
+      $('recAmtErr').textContent = '';
+      recCur = picked.cur;
+      toast('받은 금액에 넣었어요: ' + t);
+    }
+    picked = null;
+    $('pickbar').hidden = true;
+    renderRecords();
+    document.querySelector('section[aria-label="받은 돈 기록"]').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  function copyAll() {
+    const r = evaluate(expr);
+    if (r.error || !copyLines[cur]) { copyAndTell(''); return; }
+    const lines = [fmt(r.value, 10) + ' ' + cur];
+    CUR.forEach((c) => {
+      if (c.code === cur || !copyLines[c.code]) return;
+      lines.push('= ' + copyLines[c.code]);
+    });
+    copyAndTell(lines.join('\n'));
+  }
+
+  /* ---------- 받은 돈 기록 ---------- */
+  function toCur(amount, from, to) {
+    if (!rates[from] || !rates[to]) return null;
+    return amount * rates[to] / rates[from];
+  }
+  function isZero(v, code) { return Math.abs(v) < (curInfo(code).dec === 0 ? 0.5 : 0.005); }
+  function ceilTo(v, dec) { const f = Math.pow(10, dec); return Math.ceil(v * f - 1e-9) / f; }
+  function roundTo(v, dec) { return Number(v.toFixed(dec)); }
+  function payText(p) { return fmt(p.amount, curInfo(p.cur).dec) + ' ' + p.cur; }
+
+  /* 받을 금액 대비 남은 돈 (받을 금액 통화 기준). 환율이 없으면 missing */
+  function balanceFor(pays) {
+    if (!due) return null;
+    let paid = 0;
+    for (const p of pays) {
+      const v = toCur(p.amount, p.cur, due.cur);
+      if (v === null) return { missing: !rates[p.cur] ? p.cur : due.cur };
+      paid += v;
+    }
+    return { remain: due.amount - paid };
+  }
+  function effectiveChangeCur(pays) {
+    if (changeCur) return changeCur;
+    if (pays.length) return pays[pays.length - 1].cur;
+    return due ? due.cur : 'USD';
+  }
+  function netOf(x) {
+    const net = {};
+    x.payments.forEach((p) => { net[p.cur] = (net[p.cur] || 0) + p.amount; });
+    if (x.change) net[x.change.cur] = (net[x.change.cur] || 0) - x.change.amount;
+    return net;
+  }
+  function isToday(t) {
+    const a = new Date(t), b = new Date();
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+  function shownRecords() { return recView === 'today' ? records.filter((x) => isToday(x.at)) : records; }
+  function netText(x) {
+    const net = netOf(x);
+    return CUR.filter((c) => net[c.code] && !isZero(net[c.code], c.code))
+      .map((c) => payText({ amount: parseFloat(net[c.code].toPrecision(15)), cur: c.code })).join(' + ');
+  }
+  function totalsOf(list) {
+    const totals = {};
+    list.forEach((x) => { const net = netOf(x); Object.keys(net).forEach((k) => { totals[k] = (totals[k] || 0) + net[k]; }); });
+    return CUR.filter((c) => totals[c.code] && !isZero(totals[c.code], c.code))
+      .map((c) => payText({ amount: parseFloat(totals[c.code].toPrecision(15)), cur: c.code }));
+  }
+  function clearLabel() { return recView === 'today' ? '오늘 기록 지우기' : '전체 기록 지우기'; }
+  function statusText(bal) {
+    if (!bal || bal.missing) return '';
+    const d = curInfo(due.cur).dec;
+    if (isZero(bal.remain, due.cur)) return '다 받음';
+    if (bal.remain > 0) return fmt(ceilTo(bal.remain, d), d) + ' ' + due.cur + ' 덜 받음';
+    return '거스름돈 ' + fmt(roundTo(-bal.remain, d), d) + ' ' + due.cur;
+  }
+
+  function showRecMsg(t, kind) {
+    const m = $('recMsg');
+    m.classList.remove('err', 'ok');
+    if (kind) m.classList.add(kind);
+    m.textContent = t;
+  }
+
+  function renderSplit() {
+    const dv = $('dueVal');
+    if (due) { dv.textContent = fmt(due.amount, curInfo(due.cur).dec) + ' ' + due.cur; dv.classList.remove('none'); }
+    else { dv.textContent = '없음'; dv.classList.add('none'); }
+    $('dueClear').style.display = due ? '' : 'none';
+
+    const pend = $('pend');
+    pend.innerHTML = '';
+    pending.forEach((p, i) => {
+      const li = document.createElement('li');
+      const t = document.createElement('span');
+      t.className = 'pamt';
+      t.textContent = (i + 1) + '. ' + payText(p);
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.type = 'button';
+      del.textContent = '빼기';
+      del.setAttribute('aria-label', payText(p) + ' 빼기');
+      del.addEventListener('click', () => { pending.splice(i, 1); renderRecords(); });
+      li.append(t, del);
+      pend.appendChild(li);
+    });
+
+    const rb = $('remain');
+    rb.innerHTML = '';
+    rb.className = 'remain';
+    if (!due) {
+      if (pending.length) {
+        const t = document.createElement('div');
+        t.className = 'rsub';
+        t.textContent = '받을 금액을 정하면 남은 돈을 자동으로 알려 드려요.';
+        rb.appendChild(t);
+      }
+      return;
+    }
+    const bal = balanceFor(pending);
+    if (bal.missing) { rb.classList.add('warn'); rb.textContent = bal.missing + ' 환율을 먼저 입력해 주세요. (아래 환율 설정)'; return; }
+    const r = bal.remain;
+    if (isZero(r, due.cur)) { rb.classList.add('done'); rb.textContent = '다 받았어요. 기록 저장을 누르세요.'; return; }
+    const owe = r > 0;
+    const title = document.createElement('div');
+    title.className = 'rt';
+    title.textContent = owe ? '남은 돈' : '거스름돈';
+    rb.appendChild(title);
+    const sub = document.createElement('div');
+    sub.className = 'rsub';
+    sub.textContent = owe ? '통화를 누르면 그 금액이 받은 금액에 들어가요.' : '거스름돈으로 준 통화를 누르세요. 테두리 친 통화로 기록돼요.';
+    rb.appendChild(sub);
+    const selChange = effectiveChangeCur(pending);
+    const order = [due.cur].concat(CUR.map((c) => c.code).filter((c) => c !== due.cur));
+    order.forEach((code) => {
+      const c = curInfo(code);
+      const v = toCur(Math.abs(r), due.cur, code);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rline';
+      const lab = document.createElement('span');
+      lab.textContent = c.name;
+      const val = document.createElement('span');
+      if (v === null) { val.textContent = code + ' 환율 미입력'; btn.disabled = true; }
+      else {
+        const shown = owe ? ceilTo(v, c.dec) : roundTo(v, c.dec);
+        val.textContent = fmt(shown, c.dec) + ' ' + code;
+        btn.addEventListener('click', () => {
+          if (!owe) { changeCur = code; renderSplit(); copyAndTell(fmt(shown, c.dec) + ' ' + code); return; }
+          $('recAmt').value = fmtInput(numToStr(shown));
+          $('recAmt').classList.remove('bad');
+          $('recAmtErr').textContent = '';
+          recCur = code;
+          renderRecords();
+          toast('받은 금액에 넣었어요: ' + fmt(shown, c.dec) + ' ' + code);
+        });
+      }
+      if (!owe && code === selChange) btn.classList.add('sel');
+      btn.append(lab, val);
+      rb.appendChild(btn);
+    });
+  }
+
+  function renderRecords() {
+    saveArmed = false;
+    buildTabs($('recTabs'), recCur, (code) => { recCur = code; renderRecords(); }, '로 받음');
+    renderSplit();
+
+    const totals = {};
+    const shown = shownRecords();
+    document.querySelectorAll('#recView button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === recView)));
+    shown.forEach((x) => { const net = netOf(x); Object.keys(net).forEach((k) => { totals[k] = (totals[k] || 0) + net[k]; }); });
+    const tBox = $('totals');
+    tBox.innerHTML = '';
+    if (shown.length) {
+      const lbl = document.createElement('span');
+      lbl.className = 'lbl';
+      lbl.textContent = (recView === 'today' ? '오늘' : '전체') + ' 통화별 합계 (' + shown.length + '건)';
+      tBox.appendChild(lbl);
+      CUR.forEach((c) => {
+        if (!totals[c.code] || isZero(totals[c.code], c.code)) return;
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = fmt(parseFloat(totals[c.code].toPrecision(15)), c.dec) + ' ' + c.code;
+        tBox.appendChild(chip);
+      });
+    }
+
+    const list = $('recs');
+    list.innerHTML = '';
+    shown.slice().reverse().forEach((x) => {
+      const li = document.createElement('li');
+      li.className = 'rec';
+      const left = document.createElement('div');
+      const nm = document.createElement('div');
+      nm.className = 'rname';
+      nm.textContent = x.name;
+      const tm = document.createElement('div');
+      tm.className = 'rtime';
+      tm.textContent = new Date(x.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      left.append(nm, tm);
+      if (x.due) {
+        const dn = document.createElement('div');
+        dn.className = 'rnote';
+        dn.textContent = '받을 금액 ' + fmt(x.due.amount, curInfo(x.due.cur).dec) + ' ' + x.due.cur + (x.note ? ', ' + x.note : '');
+        left.appendChild(dn);
+      }
+      const amt = document.createElement('div');
+      amt.className = 'ramt rpay';
+      x.payments.forEach((p, i) => {
+        const d = document.createElement('div');
+        d.textContent = (i > 0 ? '+ ' : '') + payText(p);
+        amt.appendChild(d);
+      });
+      if (x.change) {
+        const ch = document.createElement('div');
+        ch.textContent = '− 거스름돈 ' + payText(x.change);
+        amt.appendChild(ch);
+
+        const nd = document.createElement('div');
+        nd.className = 'rnet';
+        nd.textContent = '= 실제 받은 돈 ' + netText(x);
+        amt.appendChild(nd);
+      }
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.type = 'button';
+      del.textContent = '삭제';
+      del.setAttribute('aria-label', x.name + ' 기록 삭제');
+      del.addEventListener('click', () => {
+        if (!del.classList.contains('armed')) {
+          del.classList.add('armed');
+          del.textContent = '확인';
+          setTimeout(() => { del.classList.remove('armed'); del.textContent = '삭제'; }, 3000);
+          return;
+        }
+        records = records.filter((y) => y.id !== x.id);
+        persistRecords();
+        renderRecords();
+        toast(x.name + ' 기록을 삭제했어요.');
+      });
+      li.append(left, amt, del);
+      list.appendChild(li);
+    });
+    const em = $('recEmpty');
+    em.style.display = shown.length ? 'none' : 'block';
+    em.textContent = records.length && !shown.length
+      ? '오늘 저장한 기록이 없어요. 이전 기록은 전체를 누르면 보여요.'
+      : '아직 기록이 없어요. 조와 인원을 고르고 받은 금액을 넣은 뒤 기록 저장을 누르세요.';
+    const cb = $('recClear');
+    cb.style.display = shown.length ? 'block' : 'none';
+    if (!cb.classList.contains('armed')) cb.textContent = clearLabel();
+  }
+
+  /* 받은 금액 칸 읽기 */
+  function readAmount() {
+    const el = $('recAmt');
+    const raw = el.value.replace(/,/g, '').trim();
+    el.classList.remove('bad');
+    $('recAmtErr').textContent = '';
+    if (raw === '') return { empty: true };
+    const n = Number(raw);
+    if (!/^\d+(\.\d+)?$/.test(raw) || !isFinite(n) || n <= 0) {
+      $('recAmtErr').textContent = '0보다 큰 숫자만 입력할 수 있어요. (예: 90 또는 700.5)';
+      el.classList.add('bad');
+      return { bad: true };
+    }
+    return { n };
+  }
+
+  function addPayment() {
+    const a = readAmount();
+    if (a.empty) {
+      $('recAmtErr').textContent = '추가할 받은 금액을 입력해 주세요.';
+      $('recAmt').classList.add('bad');
+      return;
+    }
+    if (a.bad) return;
+    pending.push({ amount: a.n, cur: recCur });
+    $('recAmt').value = '';
+    showRecMsg('', null);
+    renderRecords();
+    toast(payText({ amount: a.n, cur: recCur }) + ' 추가했어요.');
+  }
+
+  function setDue() {
+    const r = evaluate(expr);
+    $('dueErr').textContent = '';
+    if (r.error || !(r.value > 0)) {
+      $('dueErr').textContent = '계산기에 받을 금액을 먼저 입력해 주세요. (예: USD 선택 후 135)';
+      return;
+    }
+    due = { amount: r.value, cur };
+    renderRecords();
+  }
+
+  function saveRecord() {
+    const gEl = $('recGroup');
+    const pEl = $('recPeople');
+    const name = (gEl.value && pEl.value) ? gEl.value + '조 ' + pEl.value + '명' : '';
+    let ok = true;
+    gEl.classList.remove('bad'); pEl.classList.remove('bad');
+    $('recNameErr').textContent = '';
+    if (!gEl.value || !pEl.value) {
+      if (!gEl.value && !pEl.value) $('recNameErr').textContent = '조와 인원을 선택해 주세요.';
+      else if (!gEl.value) $('recNameErr').textContent = '조를 선택해 주세요.';
+      else $('recNameErr').textContent = '인원을 선택해 주세요.';
+      if (!gEl.value) gEl.classList.add('bad');
+      if (!pEl.value) pEl.classList.add('bad');
+      ok = false;
+    }
+    const a = readAmount();
+    if (a.bad) ok = false;
+    const pays = pending.slice();
+    if (a.n) pays.push({ amount: a.n, cur: recCur });
+    if (!a.bad && !pays.length) {
+      $('recAmtErr').textContent = '받은 금액을 입력해 주세요.';
+      $('recAmt').classList.add('bad');
+      ok = false;
+    }
+    if (!ok) { saveArmed = false; showRecMsg('빨간 칸을 확인한 뒤 다시 눌러 주세요.', 'err'); return; }
+
+    const bal = balanceFor(pays);
+    if (bal && bal.missing) { showRecMsg(bal.missing + ' 환율을 먼저 입력해 주세요. (아래 환율 설정)', 'err'); return; }
+    let change = null;
+    if (bal && !bal.missing && !isZero(bal.remain, due.cur) && bal.remain < 0) {
+      const cc = effectiveChangeCur(pays);
+      const v = toCur(-bal.remain, due.cur, cc);
+      if (v !== null) change = { amount: roundTo(v, curInfo(cc).dec), cur: cc };
+    }
+    const note = change ? '거스름돈 ' + payText(change) : statusText(bal);
+    if (bal && !isZero(bal.remain, due.cur) && bal.remain > 0 && !saveArmed) {
+      saveArmed = true;
+      showRecMsg('아직 ' + note.replace(' 덜 받음', '') + ' 남았어요. 그래도 저장하려면 기록 저장을 한 번 더 누르세요.', 'err');
+      return;
+    }
+
+    records.push({
+      id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      name, at: Date.now(), due: due ? { amount: due.amount, cur: due.cur } : null, note, payments: pays, change
+    });
+    const label = name + ' ' + pays.map(payText).join(' + ');
+    if (!persistRecords()) {
+      showRecMsg(label + ' 기록을 목록에 넣었지만, 이 브라우저에는 저장이 안 돼요. 화면을 닫으면 사라져요.', 'err');
+    } else {
+      showRecMsg('저장했어요: ' + label + (note ? ' (' + note + ')' : ''), 'ok');
+      toast(name + ' 기록을 저장했어요.');
+    }
+    gEl.value = '';
+    pEl.value = '';
+    $('recAmt').value = '';
+    pending = [];
+    due = null;
+    changeCur = null;
+    $('dueErr').textContent = '';
+    renderRecords();
+    const first = document.querySelector('#recs .rec');
+    if (first) {
+      first.classList.add('new');
+      first.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      setTimeout(() => first.classList.remove('new'), 3000);
+    }
+  }
+
+  function fillFromCalc() {
+    const r = evaluate(expr);
+    $('recAmtErr').textContent = '';
+    $('recAmt').classList.remove('bad');
+    if (r.error || !(r.value > 0)) {
+      $('recAmtErr').textContent = '계산기에 0보다 큰 금액이 있어야 가져올 수 있어요.';
+      return;
+    }
+    $('recAmt').value = fmtInput(numToStr(r.value));
+    recCur = cur;
+    renderRecords();
+  }
+
+  function copyRecords() {
+    const list = shownRecords();
+    if (!list.length) { toast('복사할 기록이 없어요.'); return; }
+    const now = new Date();
+    const head = recView === 'today'
+      ? '[받은 돈 기록] ' + now.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
+      : '[받은 돈 기록] 전체';
+    const lines = [head, ''];
+    list.forEach((x) => {
+      const t = recView === 'today'
+        ? new Date(x.at).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })
+        : new Date(x.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      lines.push(x.name + ' (' + t + ')');
+      if (x.due) lines.push('  받을 금액 ' + payText(x.due));
+      let pay = x.payments.map(payText).join(' + ');
+      if (x.change) pay += ' - 거스름돈 ' + payText(x.change) + ' = ' + netText(x);
+      lines.push('  ' + pay);
+      if (x.note && !x.change && x.note !== '다 받음') lines.push('  ' + x.note);
+      lines.push('');
+    });
+    lines.push('통화별 합계 (' + list.length + '건)');
+    totalsOf(list).forEach((t) => lines.push('  ' + t));
+    copyText(lines.join('\n')).then((ok) => {
+      toast(ok ? '복사했어요. 카톡 나와의 채팅에 붙여넣으세요.' : '복사가 안 돼요. 다시 눌러 주세요.');
+    });
+  }
+
+  function clearRecords() {
+    const b = $('recClear');
+    if (!b.classList.contains('armed')) {
+      b.classList.add('armed');
+      b.textContent = '한 번 더 누르면 ' + (recView === 'today' ? '오늘' : '전체') + ' 기록이 지워져요';
+      setTimeout(() => { b.classList.remove('armed'); b.textContent = clearLabel(); }, 3000);
+      return;
+    }
+    b.classList.remove('armed');
+    const which = recView === 'today' ? '오늘' : '전체';
+    records = recView === 'today' ? records.filter((x) => !isToday(x.at)) : [];
+    persistRecords();
+    renderRecords();
+    toast(which + ' 기록을 지웠어요.');
+  }
+
+  /* ---------- 환율 설정 ---------- */
+  function buildRateFields() {
+    const box = $('rateFields');
+    EDITABLE.forEach((code) => {
+      const c = curInfo(code);
+      const f = document.createElement('div');
+      f.className = 'field';
+      f.innerHTML =
+        '<label for="rate-' + code + '">1 USD = ' + c.name + ' (' + code + ')</label>' +
+        '<div class="inline"><input id="rate-' + code + '" type="text" inputmode="decimal" autocomplete="off" placeholder="숫자 입력"><span>' + code + '</span></div>' +
+        '<div class="ferr" id="err-' + code + '"></div>';
+      box.appendChild(f);
+      const input = f.querySelector('input');
+      if (rates[code]) input.value = String(rates[code]);
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveRates(); });
+    });
+  }
+
+  function showSavedAt() {
+    const m = $('saveMsg');
+    m.classList.remove('err');
+    m.textContent = savedAt ? '마지막 저장: ' + new Date(savedAt).toLocaleString('ko-KR') : '';
+  }
+
+  function saveRates() {
+    let ok = true;
+    const next = {};
+    EDITABLE.forEach((code) => {
+      const input = $('rate-' + code);
+      const err = $('err-' + code);
+      const raw = input.value.replace(/,/g, '').trim();
+      input.classList.remove('bad');
+      err.textContent = '';
+      if (raw === '') {
+        err.textContent = code + ' 환율을 입력해 주세요.';
+        input.classList.add('bad'); ok = false; return;
+      }
+      const n = Number(raw);
+      if (!/^\d+(\.\d+)?$/.test(raw) || !isFinite(n) || n <= 0) {
+        err.textContent = '0보다 큰 숫자만 입력할 수 있어요. (예: 7.8 또는 1400)';
+        input.classList.add('bad'); ok = false; return;
+      }
+      next[code] = n;
+    });
+    const m = $('saveMsg');
+    if (!ok) {
+      m.classList.add('err');
+      m.textContent = '빨간 칸을 고친 뒤 다시 저장해 주세요.';
+      return;
+    }
+    EDITABLE.forEach((code) => { rates[code] = next[code]; });
+    savedAt = Date.now();
+    if (persist()) {
+      showSavedAt();
+      m.textContent = '환율을 저장했어요. ' + m.textContent;
+    } else {
+      m.classList.add('err');
+      m.textContent = '이 브라우저에서는 저장이 안 돼요. 이번 사용 중에만 적용됩니다.';
+    }
+    render();
+  }
+
+  /* ---------- 화면 모드 ---------- */
+  let mode = 'light';
+  try { if (localStorage.getItem(THEME_KEY) === 'dark') mode = 'dark'; } catch (e) { /* 저장값이 없으면 밝게 */ }
+  function applyTheme(m) {
+    document.documentElement.setAttribute('data-theme', m);
+    const b = $('moon');
+    b.setAttribute('aria-pressed', String(m === 'dark'));
+    b.setAttribute('aria-label', m === 'dark' ? '밝게 보기' : '어둡게 보기');
+  }
+  $('moon').addEventListener('click', () => {
+    mode = mode === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem(THEME_KEY, mode); } catch (err) { /* 저장 실패 시 이번에만 적용 */ }
+    applyTheme(mode);
+  });
+  applyTheme(mode);
+
+  /* ---------- 맨 위로 버튼 ---------- */
+  function updateTop() { $('toTop').hidden = window.scrollY < 300; }
+  window.addEventListener('scroll', updateTop, { passive: true });
+  $('toTop').addEventListener('click', () => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+  updateTop();
+
+  /* ---------- 인원별 가격 ---------- */
+  const ITEM_KEY = 'fx-calc-items-v1';
+  let items = [];
+  let selItem = null;
+  let selPeople = 1;
+  let itemCur = 'USD';
+  let picked2 = null;
+  let priceVals = {};
+
+  function loadItems() {
+    try {
+      const a = JSON.parse(localStorage.getItem(ITEM_KEY) || '[]');
+      if (Array.isArray(a)) items = a.filter((x) => x && typeof x.name === 'string' && typeof x.price === 'number' && x.price > 0 && curInfo(x.cur));
+    } catch (e) { items = []; }
+    if (items.length) selItem = items[0].id;
+  }
+  function persistItems() {
+    try { localStorage.setItem(ITEM_KEY, JSON.stringify(items)); return true; } catch (e) { return false; }
+  }
+
+  function renderPrice() {
+    const box = $('items');
+    box.innerHTML = '';
+    if (!items.some((x) => x.id === selItem)) selItem = items.length ? items[0].id : null;
+    items.forEach((x) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'item';
+      b.setAttribute('aria-pressed', String(x.id === selItem));
+      const n = document.createElement('span'); n.textContent = x.name;
+      const v = document.createElement('span'); v.textContent = payText({ amount: x.price, cur: x.cur });
+      b.append(n, v);
+      b.addEventListener('click', () => { selItem = x.id; renderPrice(); });
+      box.appendChild(b);
+    });
+    $('itemsEmpty').style.display = items.length ? 'none' : 'block';
+    if (!items.length) $('manage').open = true;
+
+    const pp = $('people');
+    pp.innerHTML = '';
+    for (let i = 1; i <= 8; i++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = i + '명';
+      b.setAttribute('aria-pressed', String(i === selPeople));
+      b.addEventListener('click', () => { selPeople = i; renderPrice(); });
+      pp.appendChild(b);
+    }
+
+    picked2 = null;
+    $('pickbar2').hidden = true;
+    priceVals = {};
+    const it = items.find((x) => x.id === selItem);
+    const rows = $('priceRows');
+    rows.innerHTML = '';
+    if (!it) { $('psum').textContent = '상품을 고르면 가격이 나와요.'; return; }
+    const total = parseFloat((it.price * selPeople).toPrecision(15));
+    $('psum').textContent = it.name + ' ' + payText({ amount: it.price, cur: it.cur }) + ' × ' + selPeople + '명 = ' + payText({ amount: total, cur: it.cur });
+    CUR.forEach((c) => {
+      const li = document.createElement('li');
+      li.className = 'row' + (c.code === it.cur ? ' current' : '');
+      li.tabIndex = 0;
+      li.setAttribute('role', 'button');
+      const left = document.createElement('div');
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = c.code + ' ' + c.name;
+      left.appendChild(name);
+      const val = document.createElement('div');
+      val.className = 'val';
+      const v = toCur(total, it.cur, c.code);
+      if (v === null) {
+        val.className = 'val need';
+        val.textContent = (!rates[it.cur] ? it.cur : c.code) + ' 환율을 입력해 주세요';
+      } else {
+        const r = Number(v.toFixed(c.dec));
+        priceVals[c.code] = r;
+        val.textContent = c.sym + ' ' + fmt(r, c.dec);
+      }
+      li.append(left, val);
+      const pick = async () => {
+        if (!(priceVals[c.code] > 0)) { copyAndTell(''); return; }
+        const t = fmt(priceVals[c.code], c.dec) + ' ' + c.code;
+        picked2 = { amount: priceVals[c.code], cur: c.code };
+        $('pickTxt2').textContent = '선택한 금액: ' + t;
+        $('pickbar2').hidden = false;
+        $('pickbar2').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        const ok = await copyText(t);
+        toast(ok ? '복사했어요: ' + t : '선택했어요: ' + t + ' (복사는 안 됐어요)');
+      };
+      li.addEventListener('click', pick);
+      li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+      rows.appendChild(li);
+    });
+  }
+
+  function usePicked2(where) {
+    if (!picked2) return;
+    picked = picked2;
+    $('recPeople').value = String(selPeople);
+    showView('calc');
+    usePicked(where);
+  }
+
+  function renderItemList() {
+    buildTabs($('itemTabs'), itemCur, (code) => { itemCur = code; renderItemList(); }, ' 가격');
+    const ul = $('ilist');
+    ul.innerHTML = '';
+    items.forEach((x) => {
+      const li = document.createElement('li');
+      const t = document.createElement('span');
+      t.textContent = x.name + ' · 1인 ' + payText({ amount: x.price, cur: x.cur });
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.type = 'button';
+      del.textContent = '삭제';
+      del.addEventListener('click', () => {
+        if (!del.classList.contains('armed')) {
+          del.classList.add('armed');
+          del.textContent = '확인';
+          setTimeout(() => { del.classList.remove('armed'); del.textContent = '삭제'; }, 3000);
+          return;
+        }
+        items = items.filter((y) => y.id !== x.id);
+        persistItems();
+        renderItemList();
+        renderPrice();
+        toast(x.name + ' 상품을 삭제했어요.');
+      });
+      li.append(t, del);
+      ul.appendChild(li);
+    });
+  }
+
+  function addItem() {
+    const nEl = $('itemName');
+    const pEl = $('itemPrice');
+    const name = nEl.value.trim();
+    const raw = pEl.value.replace(/,/g, '').trim();
+    let ok = true;
+    nEl.classList.remove('bad'); pEl.classList.remove('bad');
+    $('itemNameErr').textContent = ''; $('itemPriceErr').textContent = '';
+    if (!name) { $('itemNameErr').textContent = '상품 이름을 입력해 주세요. 예: 투어 A'; nEl.classList.add('bad'); ok = false; }
+    const n = Number(raw);
+    if (raw === '') { $('itemPriceErr').textContent = '1인 가격을 입력해 주세요.'; pEl.classList.add('bad'); ok = false; }
+    else if (!/^\d+(\.\d+)?$/.test(raw) || !isFinite(n) || n <= 0) {
+      $('itemPriceErr').textContent = '0보다 큰 숫자만 입력할 수 있어요. (예: 50 또는 388)';
+      pEl.classList.add('bad'); ok = false;
+    }
+    if (!ok) return;
+    const it = { id: Date.now() + '-' + Math.random().toString(36).slice(2, 7), name, price: n, cur: itemCur };
+    items.push(it);
+    if (!persistItems()) toast('이 브라우저에서는 저장이 안 돼요. 화면을 닫으면 사라져요.');
+    else toast(name + ' 상품을 추가했어요.');
+    selItem = it.id;
+    nEl.value = '';
+    pEl.value = '';
+    renderItemList();
+    renderPrice();
+  }
+
+  function showView(v) {
+    const calc = v === 'calc';
+    document.querySelector('section[aria-label="계산기"]').hidden = !calc;
+    document.querySelector('.col').hidden = !calc;
+    $('viewPrice').hidden = calc;
+    $('goCalc').setAttribute('aria-pressed', String(calc));
+    $('goPrice').setAttribute('aria-pressed', String(!calc));
+    if (!calc) renderPrice();
+    window.scrollTo({ top: 0 });
+  }
+
+  /* ---------- 시작 ---------- */
+  load();
+  loadRecords();
+  (function fixOldChange() {
+    let changed = false;
+    records.forEach((x) => {
+      if (!x.due || x.change || !/거스름돈/.test(x.note || '')) return;
+      let paid = 0;
+      for (const p of x.payments) { const v = toCur(p.amount, p.cur, x.due.cur); if (v === null) return; paid += v; }
+      const remain = x.due.amount - paid;
+      if (remain >= 0) return;
+      const cc = x.payments[x.payments.length - 1].cur;
+      const v = toCur(-remain, x.due.cur, cc);
+      if (v === null) return;
+      x.change = { amount: roundTo(v, curInfo(cc).dec), cur: cc };
+      x.note = '거스름돈 ' + payText(x.change);
+      changed = true;
+    });
+    if (changed) persistRecords();
+  })();
+  recCur = cur;
+  buildRateFields();
+  showSavedAt();
+  if (!EDITABLE.every((c) => rates[c])) $('rateBox').open = true;
+  $('keys').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-k]');
+    if (b) press(b.dataset.k);
+  });
+  $('saveBtn').addEventListener('click', saveRates);
+  $('copyAll').addEventListener('click', copyAll);
+  $('recSave').addEventListener('click', () => {
+    try { saveRecord(); }
+    catch (err) { showRecMsg('저장 중 오류가 났어요: ' + (err && err.message ? err.message : err), 'err'); }
+  });
+  $('recFill').addEventListener('click', fillFromCalc);
+  $('recAdd').addEventListener('click', addPayment);
+  $('pickDue').addEventListener('click', () => usePicked('due'));
+  $('pickPaid').addEventListener('click', () => usePicked('paid'));
+  $('dueSet').addEventListener('click', setDue);
+  $('dueClear').addEventListener('click', () => { due = null; changeCur = null; $('dueErr').textContent = ''; renderRecords(); });
+  $('recClear').addEventListener('click', clearRecords);
+  $('recCopy').addEventListener('click', copyRecords);
+  $('recView').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-v]');
+    if (!b) return;
+    recView = b.dataset.v;
+    renderRecords();
+  });
+  $('recAmt').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('recSave').click(); });
+  (function fillSelects() {
+    const opts = (n, unit, first) => '<option value="">' + first + '</option>' +
+      Array.from({ length: n }, (_, i) => '<option value="' + (i + 1) + '">' + (i + 1) + unit + '</option>').join('');
+    $('recGroup').innerHTML = opts(15, '조', '조 선택');
+    $('recPeople').innerHTML = opts(8, '명', '인원 선택');
+  })();
+
+  /* 받은 금액 칸에 "1,058.4 HKD"처럼 붙여넣으면 숫자만 남기고 통화도 자동 선택 */
+  /* 입력칸 숫자에 천 단위 쉼표 넣기 */
+  function fmtInput(v) {
+    v = String(v).replace(/[^\d.]/g, '');
+    const i = v.indexOf('.');
+    let a = i < 0 ? v : v.slice(0, i);
+    const b = i < 0 ? '' : '.' + v.slice(i + 1).replace(/\./g, '');
+    a = a.replace(/^0+(?=\d)/, '');
+    return a.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + b;
+  }
+
+  function cleanAmount() {
+    const el = $('recAmt');
+    const v = el.value;
+    if (!/[A-Za-z=₩$¥\s]/.test(v)) { el.value = fmtInput(v); return; }
+    const found = [...v.matchAll(/([\d,]+(?:\.\d+)?)\s*(USD|HKD|KRW|RMB|MOP)/gi)];
+    if (found.length) {
+      const last = found[found.length - 1];
+      el.value = fmtInput(last[1]);
+      let code = last[2].toUpperCase();
+      if (code === 'MOP') code = 'HKD';
+      recCur = code;
+      renderRecords();
+    } else {
+      el.value = fmtInput(v.replace(/[^\d.,]/g, ''));
+    }
+  }
+  $('recAmt').addEventListener('input', () => { saveArmed = false; cleanAmount(); });
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target;
+    if (t.tagName === 'INPUT' || t.tagName === 'SELECT') return;
+    if ((e.key === 'Enter' || e.key === ' ') && (t.tagName === 'BUTTON' || t.classList.contains('row') || t.tagName === 'SUMMARY')) return;
+    const map = { '+': '+', '-': '−', '*': '×', '/': '÷', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', '.': '.' };
+    let k = null;
+    if (/^[0-9]$/.test(e.key)) k = e.key;
+    else if (map[e.key]) k = map[e.key];
+    if (k) { e.preventDefault(); press(k); }
+  });
+
+  loadItems();
+  renderItemList();
+  renderPrice();
+  $('goCalc').addEventListener('click', () => showView('calc'));
+  $('goPrice').addEventListener('click', () => showView('price'));
+  $('itemAdd').addEventListener('click', addItem);
+  $('itemPrice').addEventListener('input', () => { $('itemPrice').value = fmtInput($('itemPrice').value); });
+  $('pickDue2').addEventListener('click', () => usePicked2('due'));
+  $('pickPaid2').addEventListener('click', () => usePicked2('paid'));
+
+  render();
+  renderRecords();
+</script>
+</body>
+</html>
