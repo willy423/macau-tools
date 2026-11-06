@@ -779,7 +779,8 @@ function cp(btn, name, eng, cat, loc, hours, closed, rsv, special, phone, menu, 
   var award = d["수상 배지"] || "없음";
   var etc = d["기타 배지"] || "없음";
   var taxi = d["택시 주소"] || "";
-  if (/facebook\.com/i.test(menuUrl)) menuUrl = '없음'; /* 페이스북 메뉴 링크는 쓰지 않음 → 구글지도 메뉴 사진 안내로 */
+  menuUrl = String(menuUrl || '').trim();
+  if (!/^https?:\/\//i.test(menuUrl) || /facebook\.com/i.test(menuUrl)) menuUrl = '없음'; /* 빈칸·'없음'·페이스북은 모두 구글지도 메뉴 사진 안내로 */ /* 페이스북 메뉴 링크는 쓰지 않음 → 구글지도 메뉴 사진 안내로 */
   var text = [
     "아래 마카오 식당 정보로 카카오톡 전송용 HTML 카드를 만들어줘.",
     "블로그 캡션 아님. 인스타그램 캡션 아님. 카드 형식만 만들어줘.",
