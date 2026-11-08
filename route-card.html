@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>길 안내 카드 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --line:#d9dfe7; --ink:#1c2533; --sub:#5d6878;
+  --accent:#17396b; --accent-ink:#ffffff; --field:#ffffff; --soft:#eef2f7; --warn:#c0262c;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15191f; --panel:#1e242c; --line:#343d49; --ink:#e8edf3; --sub:#a3adba;
+    --accent:#7fa8e6; --accent-ink:#0f1620; --field:#262d36; --soft:#252c35; --warn:#ff7a7f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15191f; --panel:#1e242c; --line:#343d49; --ink:#e8edf3; --sub:#a3adba;
+  --accent:#7fa8e6; --accent-ink:#0f1620; --field:#262d36; --soft:#252c35; --warn:#ff7a7f;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Gothic A1','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.top h1{font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:22px;margin:0 auto 0 0;letter-spacing:-.3px}
+.btn{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px}
+.btn.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--warn)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.sm{padding:5px 9px;font-size:13px;border-radius:8px}
+
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:18px;padding:16px;max-width:1500px;margin:0 auto;align-items:start}
+@media (max-width:980px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.previewBox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px)}
+@media (max-width:980px){.previewBox{position:static}}
+.stageOuter{overflow:hidden;border-radius:14px;border:1px solid var(--line);background:#e5e9ef}
+.hint{color:var(--sub);font-size:13px;margin:8px 2px 0}
+.hint b{color:var(--ink)}
+
+.editor{display:flex;flex-direction:column;gap:14px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.box h3{margin:0;font-size:16px;font-weight:900}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lbl{display:block;font-size:12.5px;font-weight:800;color:var(--sub);margin:10px 0 4px}
+.in,.ta,.sel{width:100%;border:1px solid var(--line);background:var(--field);border-radius:9px;padding:8px 10px}
+.ta{resize:vertical;min-height:62px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.rhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rhead h3{margin-right:auto}
+.sw{width:30px;height:30px;border-radius:50%;border:3px solid transparent;padding:0}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.stepList{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.st{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--soft)}
+.st-top{display:flex;gap:10px}
+.thumb{width:74px;height:74px;flex:none;border-radius:9px;background:#d6dde6 center/cover no-repeat;display:grid;place-items:center;color:#7a8698;font-size:11px;font-weight:800;text-align:center}
+.st-f{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.st-f .in{padding:6px 9px}
+.st-num{font-weight:900;font-size:13px;color:var(--sub)}
+.st-tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.st-tools .sel{width:auto;padding:4px 8px;font-size:13px}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.check{display:flex;align-items:center;gap:8px;font-weight:800;margin-top:14px}
+.check input{width:18px;height:18px}
+.saved{display:flex;gap:6px}
+.sizeInfo summary{font-weight:900;font-size:16px;cursor:pointer}
+.sizeInfo p{color:var(--sub);font-size:14px;margin:10px 0 0}
+.tblWrap{overflow-x:auto;margin-top:10px}
+.sizeInfo table{width:100%;border-collapse:collapse;font-size:14px}
+.sizeInfo th,.sizeInfo td{border:1px solid var(--line);padding:7px 8px;text-align:left;white-space:nowrap}
+.sizeInfo th{background:var(--soft);font-weight:800}
+.saved .sel{flex:1}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:800;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.toTop{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:25;width:50px;height:50px;border-radius:50%;border:none;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:opacity .2s}
+.toTop.on{opacity:1;visibility:visible}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:40;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);overflow:auto}
+.overlay.on{display:block}
+.overlay img{width:100%;max-width:1200px;display:block;margin:10px auto;border-radius:10px}
+.overlay p{color:#fff;text-align:center;font-weight:800;margin:6px 0}
+.overlay .btn{display:block;margin:0 auto}
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+
+/* ===== 카드 (이미지로 저장되는 부분: 항상 밝은 색) ===== */
+#card{width:1200px;transform-origin:0 0;background:#eef2f6;padding:22px 22px 14px;font-family:'Gothic A1',sans-serif;color:#1b2330;line-height:1.3}
+#card .route{background:#fff;border-radius:22px;overflow:hidden;margin-bottom:20px}
+#card .band{display:flex;align-items:center;gap:18px;padding:15px 26px}
+#card .ico{width:64px;height:64px;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+#card .band h2{margin:0;font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:42px;color:#fff;letter-spacing:-.5px;line-height:1.15}
+#card .band h2 .from{color:#ffd84d}
+#card .band h2 .mode{font-size:31px;color:#ffffff;opacity:.92}
+#card .steps{display:flex;align-items:stretch;padding:18px 18px 18px}
+#card .step{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:space-between}
+#card .arrow{flex:none;width:30px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:100px}
+#card .shead{display:flex;gap:9px;align-items:flex-start;min-height:72px}
+#card .num{width:38px;height:38px;border-radius:50%;color:#fff;font-family:'Black Han Sans',sans-serif;font-size:22px;display:flex;align-items:center;justify-content:center;flex:none}
+#card .stitle{font-weight:900;font-size:21px;line-height:1.22;word-break:keep-all}
+#card .ssub{font-size:15px;font-weight:800;color:#4a5566;margin-top:4px;word-break:keep-all}
+#card .photo{flex:none;height:230px;border-radius:12px;background-size:cover;background-repeat:no-repeat;margin-top:8px}
+#card .photo.empty{background:#e9eef4;border:2px dashed #c3ccd8;display:flex;align-items:center;justify-content:center}
+#card em.hl{font-style:normal;color:#e0262a;font-weight:900}
+#card .tag{white-space:nowrap;background:#ffd84d;color:#1b2330;padding:0 7px;border-radius:5px;font-weight:900}
+#card .tip{display:flex;align-items:center;gap:18px;margin:0 18px 18px;background:#fff6d3;border-radius:14px;padding:14px 20px}
+#card .tip .lab{background:#e0262a;color:#fff;font-family:'Black Han Sans',sans-serif;font-size:24px;padding:4px 18px;border-radius:999px;flex:none}
+#card .tip .main{font-weight:900;font-size:25px;flex:0 1 auto;max-width:52%;word-break:keep-all}
+#card .tip .sub{flex:1;font-size:15px;font-weight:700;color:#4a5566;line-height:1.55;border-left:2px solid #ecd27a;padding-left:18px;word-break:keep-all}
+#card .foot{text-align:right;font-weight:900;color:#5a6678;font-size:17px;padding:0 6px 6px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>길 안내 카드 만들기</h1>
+  <button class="btn" data-act="sampleGuide">예시 다시 넣기</button>
+  <button class="btn" data-act="newGuide">새로 만들기</button>
+  <button class="btn" data-act="save">저장</button>
+  <button class="btn main" id="exportBtn" data-act="export">이미지로 저장</button>
+</header>
+
+<main class="wrap">
+  <section class="previewBox" aria-label="미리보기">
+    <div class="stageOuter" id="stageOuter"><div id="card"></div></div>
+    <p class="hint">글자를 <b>*별표*</b>로 감싸면 빨간 강조, <b>[대괄호]</b>로 감싸면 노란 상자가 돼요. 예: *11번* 버스, [C 출구]</p>
+  </section>
+  <section class="editor" id="editor" aria-label="내용 입력"></section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="toTop" id="toTop" aria-label="맨 위로 이동" title="맨 위로"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<div class="overlay" id="overlay" role="dialog" aria-label="저장할 이미지">
+  <p>이미지를 길게 눌러 저장할 수도 있어요</p>
+  <img id="overlayImg" alt="완성된 길 안내 이미지">
+  <button class="btn" data-act="closeOverlay">닫기</button>
+</div>
+
+<script>
+const COLORS=[
+  {n:'남색',v:'#17396b'},{n:'청록',v:'#0e5b5c'},{n:'자주',v:'#5b2a6e'},
+  {n:'버건디',v:'#8a1f2b'},{n:'주황',v:'#b4530f'},{n:'초록',v:'#23602f'}
+];
+const ICONS={bus:'버스',lrt:'경전철',walk:'도보',taxi:'택시',ferry:'배'};
+const POS={top:'위쪽',center:'가운데',bottom:'아래쪽'};
+const MAX_STEPS=6;
+const KEY_GUIDES='gilan.guides', KEY_DRAFT='gilan.draft3';
+
+function step(title='',sub=''){return {title,sub,photo:'',pos:'center'}}
+function sample(){
+  return {
+    id:'', name:'라팔로마 가는 방법', footer:'',
+    routes:[
+      {icon:'bus',color:'#17396b',from:'세나도 광장',to:'라팔로마',mode:'버스',
+       steps:[step('M142 정류장 찾기','新馬路/金碧坊'),step('*11번* 버스 탑승',''),step('媽閣交通樞紐 하차','바라 교통허브 [M3]'),step('지상층으로 이동','에스컬레이터 → [C 출구]'),step('La Paloma 검색','도보 약 *3~5분*')],
+       tip:{on:true,label:'TIP',main:'정류장 번호 *M142*를 확인하세요!',sub:'정류장 표지판에서 버스 번호 바로 위쪽에 M142처럼 적혀 있습니다.\n중국어나 포르투갈어를 몰라도 이 번호만 보고 쉽게 찾을 수 있어요.'}},
+      {icon:'lrt',color:'#0e5b5c',from:'코타이',to:'라팔로마',mode:'경전철',
+       steps:[step('가까운 경전철역에서 탑승','바라(Barra) 방면'),step('바라역 하차','媽閣站 · Barra Station'),step('[C 출구]로 이동',''),step('La Paloma 검색','도보 약 *3~5분*')],
+       tip:{on:false,label:'TIP',main:'',sub:''}}
+    ]
+  };
+}
+function blank(){
+  return {id:'',name:'새 길 안내',footer:'',routes:[newRoute()]};
+}
+function newRoute(){
+  return {icon:'bus',color:'#17396b',from:'',to:'',mode:'버스',steps:[step(),step(),step()],tip:{on:false,label:'TIP',main:'',sub:''}};
+}
+
+let G;
+try{ const d=localStorage.getItem(KEY_DRAFT); G=d?JSON.parse(d):sample(); }catch(e){ G=sample(); }
+
+/* ---------- 글자 처리 ---------- */
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmt(s){
+  return esc(s)
+    .replace(/\*([^*\n]+)\*/g,'<em class="hl">$1</em>')
+    .replace(/\[([^\]\n]+)\]/g,'<span class="tag">$1</span>')
+    .replace(/\n/g,'<br>');
+}
+
+/* ---------- 아이콘 ---------- */
+function iconSvg(t,c){
+  const s=`stroke="${c}" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
+  const p={
+    bus:`<rect x="4.5" y="3" width="15" height="14.5" rx="3" ${s}/><path d="M4.5 11h15M4.5 7h15" ${s}/><circle cx="8.2" cy="14.3" r="1.1" fill="${c}"/><circle cx="15.8" cy="14.3" r="1.1" fill="${c}"/><path d="M7.5 17.5v2.5M16.5 17.5v2.5" ${s}/>`,
+    lrt:`<rect x="5.5" y="2.5" width="13" height="14.5" rx="4" ${s}/><path d="M5.5 9.5h13" ${s}/><circle cx="9.2" cy="13.3" r="1.1" fill="${c}"/><circle cx="14.8" cy="13.3" r="1.1" fill="${c}"/><path d="M9 17l-2.5 4.5M15 17l2.5 4.5M7.6 19.5h8.8" ${s}/>`,
+    walk:`<circle cx="13.5" cy="4" r="2" ${s}/><path d="M9 21.5l2.8-6.5 3 2.8v3.7M11.8 15l-1-5.5 4.2 2 3 1.2M10.8 9.5L7 12.5" ${s}/>`,
+    taxi:`<path d="M4 17v-4.5L6.3 7h11.4l2.3 5.5V17z" ${s}/><path d="M9.5 3.5h5V7h-5z" ${s}/><path d="M4 12.5h16" ${s}/><circle cx="8" cy="17.3" r="1.8" ${s}/><circle cx="16" cy="17.3" r="1.8" ${s}/>`,
+    ferry:`<path d="M3.5 15l2-5h13l2 5" ${s}/><path d="M8 10V6h8v4M12 2.8V6" ${s}/><path d="M2.5 19.2c2.3 1.6 4.3 1.6 6.4 0s4.2-1.6 6.3 0 4.2 1.6 6.3 0" ${s}/>`
+  };
+  return `<svg width="44" height="44" viewBox="0 0 24 24">${p[t]||p.bus}</svg>`;
+}
+function arrowSvg(c){return `<svg width="30" height="30" viewBox="0 0 24 24"><path d="M8.5 4.5l7.5 7.5-7.5 7.5" stroke="${c}" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function camSvg(){return `<svg width="46" height="46" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z" stroke="#a7b2c1" stroke-width="1.6" fill="none" stroke-linejoin="round"/><circle cx="12" cy="13.3" r="3.4" stroke="#a7b2c1" stroke-width="1.6" fill="none"/></svg>`}
+
+/* ---------- 카드 그리기 ---------- */
+const card=document.getElementById('card'), stageOuter=document.getElementById('stageOuter');
+function renderCard(){
+  let h='';
+  G.routes.forEach(r=>{
+    const c=r.color;
+    const title=`${r.from?`<span class="from">${esc(r.from)}</span>에서 `:''}${esc(r.to)}${r.to?' ':''}가는 법${r.mode?` <span class="mode">(${esc(r.mode)})</span>`:''}`;
+    const steps=r.steps.map((s,i)=>{
+      const ph=s.photo
+        ?`<div class="photo" style="background-image:url(${s.photo});background-position:center ${s.pos||'center'}"></div>`
+        :`<div class="photo empty">${camSvg()}</div>`;
+      return `<div class="step"><div class="shead"><div class="num" style="background:${c}">${i+1}</div><div><div class="stitle">${fmt(s.title)||'&nbsp;'}</div>${s.sub?`<div class="ssub">${fmt(s.sub)}</div>`:''}</div></div>${ph}</div>`;
+    }).join(`<div class="arrow">${arrowSvg(c)}</div>`);
+    const tip=r.tip&&r.tip.on&&(r.tip.main||r.tip.sub)
+      ?`<div class="tip">${r.tip.label?`<div class="lab">${esc(r.tip.label)}</div>`:''}${r.tip.main?`<div class="main">${fmt(r.tip.main)}</div>`:''}${r.tip.sub?`<div class="sub">${fmt(r.tip.sub)}</div>`:''}</div>`:'';
+    h+=`<div class="route" style="border:3px solid ${c}"><div class="band" style="background:${c}"><div class="ico">${iconSvg(r.icon,c)}</div><h2>${title}</h2></div><div class="steps">${steps}</div>${tip}</div>`;
+  });
+  if(G.footer) h+=`<div class="foot">${fmt(G.footer)}</div>`;
+  card.innerHTML=h;
+  fitStage();
+}
+function fitStage(){
+  const w=stageOuter.clientWidth; const sc=Math.min(1,w/1200);
+  card.style.transform=`scale(${sc})`;
+  stageOuter.style.height=(card.offsetHeight*sc)+'px';
+}
+new ResizeObserver(fitStage).observe(stageOuter);
+
+/* ---------- 입력 화면 ---------- */
+const editor=document.getElementById('editor');
+let sizeOpen=false;
+function savedList(){try{return JSON.parse(localStorage.getItem(KEY_GUIDES)||'{}')}catch(e){return {}}}
+function buildEditor(){
+  const saved=savedList();
+  const ids=Object.keys(saved).sort((a,b)=>saved[b].updated-saved[a].updated);
+  let h=`<div class="box">
+    <label class="lbl" for="gname" style="margin-top:0">안내 이름 (이미지 파일 이름이 돼요)</label>
+    <input class="in" id="gname" data-f="name" value="${esc(G.name)}">
+    <label class="lbl" for="gsaved">저장해 둔 안내 불러오기</label>
+    <div class="saved"><select class="sel" id="gsaved"><option value="">${ids.length?'고르세요':'아직 저장한 안내가 없어요'}</option>${ids.map(id=>`<option value="${id}" ${id===G.id?'selected':''}>${esc(saved[id].name)}</option>`).join('')}</select>
+    <button class="btn sm" data-act="load">열기</button>${G.id&&saved[G.id]?`<button class="btn sm danger" data-act="delGuide">지우기</button>`:''}</div>
+  </div>`;
+  G.routes.forEach((r,ri)=>{
+    h+=`<div class="box">
+      <div class="rhead"><h3>경로 ${ri+1}</h3>
+        <button class="btn sm" data-act="upRoute" data-r="${ri}" ${ri===0?'disabled':''}>위로</button>
+        <button class="btn sm" data-act="downRoute" data-r="${ri}" ${ri===G.routes.length-1?'disabled':''}>아래로</button>
+        <button class="btn sm danger" data-act="delRoute" data-r="${ri}" ${G.routes.length===1?'disabled':''}>경로 삭제</button></div>
+      <div class="grid2">
+        <div><label class="lbl">출발지</label><input class="in" data-f="routes.${ri}.from" value="${esc(r.from)}" placeholder="예: 세나도 광장"></div>
+        <div><label class="lbl">목적지</label><input class="in" data-f="routes.${ri}.to" value="${esc(r.to)}" placeholder="예: 라팔로마"></div>
+        <div><label class="lbl">교통수단 이름</label><input class="in" data-f="routes.${ri}.mode" value="${esc(r.mode)}" placeholder="예: 버스"></div>
+        <div><label class="lbl">아이콘</label><select class="sel" data-f="routes.${ri}.icon">${Object.entries(ICONS).map(([k,v])=>`<option value="${k}" ${r.icon===k?'selected':''}>${v}</option>`).join('')}</select></div>
+      </div>
+      <span class="lbl">색상</span>
+      <div class="row">${COLORS.map(c=>`<button class="sw" style="background:${c.v}" aria-label="${c.n}" aria-pressed="${r.color===c.v}" data-act="color" data-r="${ri}" data-v="${c.v}"></button>`).join('')}</div>
+      <div class="stepList">${r.steps.map((s,si)=>`
+        <div class="st">
+          <div class="st-top">
+            <div class="thumb" style="${s.photo?`background-image:url(${s.photo})`:''}">${s.photo?'':'사진<br>없음'}</div>
+            <div class="st-f">
+              <span class="st-num">${si+1}단계</span>
+              <input class="in" aria-label="${si+1}단계 제목" data-f="routes.${ri}.steps.${si}.title" value="${esc(s.title)}" placeholder="제목 (예: *11번* 버스 탑승)">
+              <input class="in" aria-label="${si+1}단계 작은 글씨" data-f="routes.${ri}.steps.${si}.sub" value="${esc(s.sub)}" placeholder="작은 글씨 (없어도 돼요)">
+            </div>
+          </div>
+          <div class="st-tools">
+            <label class="btn sm filebtn">${s.photo?'사진 바꾸기':'사진 넣기'}<input type="file" accept="image/*" data-photo="routes.${ri}.steps.${si}"></label>
+            ${s.photo?`<button class="btn sm" data-act="clearPhoto" data-r="${ri}" data-s="${si}">사진 빼기</button>
+            <select class="sel" aria-label="사진 보이는 위치" data-f="routes.${ri}.steps.${si}.pos">${Object.entries(POS).map(([k,v])=>`<option value="${k}" ${s.pos===k?'selected':''}>${v} 보이기</option>`).join('')}</select>`:''}
+            <button class="btn sm" data-act="upStep" data-r="${ri}" data-s="${si}" ${si===0?'disabled':''}>위로</button>
+            <button class="btn sm" data-act="downStep" data-r="${ri}" data-s="${si}" ${si===r.steps.length-1?'disabled':''}>아래로</button>
+            <button class="btn sm danger" data-act="delStep" data-r="${ri}" data-s="${si}" ${r.steps.length===1?'disabled':''}>단계 삭제</button>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn sm" data-act="addStep" data-r="${ri}" ${r.steps.length>=MAX_STEPS?'disabled':''}>단계 추가 ${r.steps.length>=MAX_STEPS?`(최대 ${MAX_STEPS}개)`:''}</button></div>
+      <label class="check"><input type="checkbox" data-f="routes.${ri}.tip.on" ${r.tip.on?'checked':''}> 아래쪽에 팁 상자 넣기</label>
+      ${r.tip.on?`
+        <label class="lbl">빨간 표시 글자</label><input class="in" data-f="routes.${ri}.tip.label" value="${esc(r.tip.label)}" placeholder="예: TIP, 꿀팁, 주의">
+        <label class="lbl">큰 문구</label><input class="in" data-f="routes.${ri}.tip.main" value="${esc(r.tip.main)}" placeholder="예: 정류장 번호 *M142*를 확인하세요!">
+        <label class="lbl">작은 설명</label><textarea class="ta" data-f="routes.${ri}.tip.sub" placeholder="예: 정류장 표지판에서 버스 번호 바로 위쪽에 M142처럼 적혀 있습니다.">${esc(r.tip.sub)}</textarea>`:''}
+    </div>`;
+  });
+  h+=`<div class="box">
+    <button class="btn" data-act="addRoute">경로 추가</button>
+    <label class="lbl">맨 아래 작은 문구 (없어도 돼요)</label>
+    <input class="in" data-f="footer" value="${esc(G.footer)}" placeholder="예: 업체 이름이나 연락처">
+  </div>
+  <details class="box sizeInfo" id="sizeInfo" ${sizeOpen?'open':''}>
+    <summary>사진 크기 안내</summary>
+    <p>사진 크기는 따로 맞추지 않아도 돼요. 긴 쪽이 1000픽셀이 되도록 자동으로 줄이고, 사진 칸에 맞게 잘라서 보여줘요. 사진 칸 모양은 한 경로의 단계 수에 따라 달라져요.</p>
+    <div class="tblWrap"><table>
+      <thead><tr><th>한 경로의 단계 수</th><th>사진 칸 크기(가로×세로)</th><th>모양</th></tr></thead>
+      <tbody>
+        <tr><td>3단계</td><td>약 350 × 230</td><td>가로로 긴 모양</td></tr>
+        <tr><td>4단계</td><td>약 255 × 230</td><td>거의 정사각형</td></tr>
+        <tr><td>5단계</td><td>약 200 × 230</td><td>살짝 세로로 긴 모양</td></tr>
+        <tr><td>6단계</td><td>약 160 × 230</td><td>세로로 긴 모양</td></tr>
+      </tbody>
+    </table></div>
+    <p>휴대폰으로 찍을 때는 정사각형(1:1)이나 세로 3:4로 찍으면 대부분 잘 맞아요. 표지판이나 출구 번호처럼 중요한 부분은 사진 가운데에 오게 찍어 주세요.</p>
+    <p>완성 이미지는 가로 2400픽셀로 저장되고, 세로는 경로 수와 팁 상자에 따라 달라져요.</p>
+  </details>`;
+  editor.innerHTML=h;
+  document.getElementById('sizeInfo').addEventListener('toggle',e=>{sizeOpen=e.target.open;});
+}
+
+/* ---------- 데이터 다루기 ---------- */
+function setPath(path,val){
+  const k=path.split('.'); let o=G;
+  for(let i=0;i<k.length-1;i++) o=o[k[i]];
+  o[k[k.length-1]]=val;
+}
+function getPath(path){return path.split('.').reduce((o,k)=>o[k],G)}
+let draftTimer;
+function saveDraft(){
+  clearTimeout(draftTimer);
+  draftTimer=setTimeout(()=>{try{localStorage.setItem(KEY_DRAFT,JSON.stringify(G))}catch(e){}},400);
+}
+function changed(rebuild){ if(rebuild) buildEditor(); renderCard(); saveDraft(); }
+function move(arr,i,d){const j=i+d; if(j<0||j>=arr.length) return; [arr[i],arr[j]]=[arr[j],arr[i]];}
+
+editor.addEventListener('input',e=>{
+  const f=e.target.dataset.f; if(!f||e.target.type==='checkbox'||e.target.tagName==='SELECT') return;
+  setPath(f,e.target.value); changed(false);
+});
+editor.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.f&&(t.type==='checkbox'||t.tagName==='SELECT')){
+    setPath(t.dataset.f, t.type==='checkbox'?t.checked:t.value);
+    changed(t.type==='checkbox'); return;
+  }
+  if(t.dataset.photo&&t.files&&t.files[0]){
+    const target=getPath(t.dataset.photo);
+    shrink(t.files[0]).then(url=>{target.photo=url; target.pos=target.pos||'center'; changed(true);})
+      .catch(()=>toast('사진을 읽지 못했어요. 다른 사진으로 해 보세요.'));
+  }
+});
+
+function shrink(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=rej;
+    fr.onload=()=>{
+      const img=new Image();
+      img.onerror=rej;
+      img.onload=()=>{
+        const max=1000, sc=Math.min(1,max/Math.max(img.width,img.height));
+        const cv=document.createElement('canvas');
+        cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+        cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+        res(cv.toDataURL('image/jpeg',0.82));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act, r=+b.dataset.r, s=+b.dataset.s;
+  const R=G.routes[r];
+  switch(a){
+    case 'color': R.color=b.dataset.v; changed(true); break;
+    case 'addStep': if(R.steps.length<MAX_STEPS){R.steps.push(step()); changed(true);} break;
+    case 'delStep': if(confirm(`${s+1}단계를 지울까요?`)){R.steps.splice(s,1); changed(true);} break;
+    case 'upStep': move(R.steps,s,-1); changed(true); break;
+    case 'downStep': move(R.steps,s,1); changed(true); break;
+    case 'clearPhoto': R.steps[s].photo=''; changed(true); break;
+    case 'addRoute': G.routes.push(newRoute()); changed(true); break;
+    case 'delRoute': if(confirm(`경로 ${r+1}을 지울까요?`)){G.routes.splice(r,1); changed(true);} break;
+    case 'upRoute': move(G.routes,r,-1); changed(true); break;
+    case 'downRoute': move(G.routes,r,1); changed(true); break;
+    case 'newGuide': if(confirm('새 안내를 만들까요? 저장하지 않은 내용은 사라져요.')){G=blank(); changed(true);} break;
+    case 'sampleGuide': if(confirm('라팔로마 예시(버스·경전철 두 경로)로 다시 채울까요? 지금 화면의 내용과 사진은 사라져요.')){G=sample(); changed(true); toast('예시를 다시 넣었어요');} break;
+    case 'save': saveGuide(); break;
+    case 'load': loadGuide(); break;
+    case 'delGuide': delGuide(); break;
+    case 'export': exportPng(); break;
+    case 'closeOverlay': document.getElementById('overlay').classList.remove('on'); break;
+  }
+});
+
+function saveGuide(){
+  const all=savedList();
+  if(!G.id) G.id='g'+Date.now();
+  all[G.id]={name:G.name||'이름 없는 안내',updated:Date.now(),data:G};
+  try{ localStorage.setItem(KEY_GUIDES,JSON.stringify(all)); saveDraft(); buildEditor(); toast('저장했어요'); }
+  catch(e){ toast('저장 공간이 부족해요. 안 쓰는 안내를 지우거나 사진 수를 줄여 주세요.'); }
+}
+function loadGuide(){
+  const id=document.getElementById('gsaved').value; if(!id) return;
+  const all=savedList(); if(!all[id]) return;
+  G=JSON.parse(JSON.stringify(all[id].data)); G.id=id; changed(true); toast('불러왔어요');
+}
+function delGuide(){
+  const all=savedList(); if(!all[G.id]) return;
+  if(!confirm(`“${all[G.id].name}” 안내를 지울까요? 되돌릴 수 없어요.`)) return;
+  delete all[G.id];
+  try{localStorage.setItem(KEY_GUIDES,JSON.stringify(all))}catch(e){}
+  G.id=''; changed(true); toast('지웠어요');
+}
+
+/* ---------- 이미지로 저장 ---------- */
+const dlReady=(window.claude&&typeof window.claude.use==='function')?window.claude.use('downloads').catch(()=>null):Promise.resolve(null);
+async function exportPng(){
+  const btn=document.getElementById('exportBtn');
+  btn.disabled=true; btn.textContent='만드는 중…';
+  try{
+    if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+    const canvas=await html2canvas(card,{
+      scale:2, backgroundColor:'#eef2f6', useCORS:true, windowWidth:1400, logging:false,
+      onclone:d=>{const c=d.getElementById('card'); c.style.transform='none'; const o=d.getElementById('stageOuter'); o.style.overflow='visible'; o.style.height='auto';}
+    });
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    const name=(G.name||'길안내').replace(/[\\/:*?"<>|]/g,'').trim().replace(/\s+/g,'_')+'.png';
+    const dl=await dlReady;
+    if(dl){
+      try{ await dl.save({filename:name,data:blob}); toast('이미지를 저장했어요'); }
+      catch(err){ if(err&&err.code==='declined') toast('저장을 취소했어요'); else showOverlay(canvas,blob,name); }
+    }else{
+      showOverlay(canvas,blob,name);
+    }
+  }catch(e){
+    toast('이미지를 만들지 못했어요. 다시 눌러 보세요.');
+  }finally{
+    btn.disabled=false; btn.textContent='이미지로 저장';
+  }
+}
+function showOverlay(canvas,blob,name){
+  const url=URL.createObjectURL(blob);
+  try{const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();}catch(e){}
+  document.getElementById('overlayImg').src=canvas.toDataURL('image/png');
+  document.getElementById('overlay').classList.add('on');
+}
+
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('on'),2400);
+}
+
+const toTop=document.getElementById('toTop');
+toTop.addEventListener('click',()=>{window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
+window.addEventListener('scroll',()=>{toTop.classList.toggle('on',window.scrollY>400);},{passive:true});
+
+buildEditor(); renderCard();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitStage);
+</script>
+</body>
+</html>
